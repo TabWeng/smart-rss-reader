@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>智能RSS订阅系统</title>
+    <!-- Bootstrap -->
+    <link href="../static/css/libs/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/libs/font-awesome.min.css" rel="stylesheet">
+    <link href="../static/css/rss-homepage.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <!-- 导航条 -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#rss_navbar_add_something">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">
+            <i class="fa fa-rss-square" aria-hidden="true"></i>
+            智能RSS订阅系统
+          </a>
+        </div>
+      <div class="collapse navbar-collapse" id="rss_navbar_add_something">
+        <ul class="nav navbar-nav navbar-right rss-add-source">
+          <li>
+            <a href="#" data-toggle="modal" data-target="#add_category" id="rss_add_category_button">添加类别
+              <i class="fa fa-plus-square-o" aria-hidden="true"></i>
+            </a>
+          </li>        
+          <li>
+            <a href="#" data-toggle="modal" data-target="#add_source" id="rss_add_source_button">添加RSS源
+              <i class="fa fa-plus-square-o" aria-hidden="true"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    <!-- 内容 -->
+    <div>
+      <!-- 侧边栏 -->
+      <div class="rss-sidebar">
+        <ul>
+{#          <li class="rss-category">#}
+{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
+{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
+{#            <span class="rss-category-name" title="科技频道">科技频道</span>#}
+{#            <span class="rss-amount">356</span>#}
+{#            <ul>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" tilte="有道词典">有道词典</span>#}
+{#                <span class="rss-amount">666</span>#}
+{#              </li>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" title="国家地理中文网">国家地理中文网</span>#}
+{#                <span class="rss-amount">123</span>#}
+{#              </li>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" tilte="有道词典">有道词典</span>#}
+{#                <span class="rss-amount">222</span>#}
+{#              </li>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" title="果壳网-科学人">果壳网-科学人</span>#}
+{#                <span class="rss-amount">333</span>#}
+{#              </li>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" title="有道词典">有道词典</span>#}
+{#                <span class="rss-amount">555</span>#}
+{#              </li>#}
+{#            </ul>#}
+{#          </li>#}
+{#          <li class="rss-category">#}
+{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
+{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
+{#            <span class="rss-category-name" title="36氪">36氪</span>#}
+{#            <span class="rss-amount">356</span>#}
+{#          </li>#}
+{#          <li class="rss-category">#}
+{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
+{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
+{#            <span class="rss-category-name" title="腾讯科技">腾讯科技</span>#}
+{#            <span class="rss-amount">356</span>#}
+{#            <ul>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" title="有道词典">有道词典</span>#}
+{#                <span class="rss-amount">666</span>#}
+{#              </li>#}
+{#              <li>#}
+{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
+{#                <span class="rss-source-name" title="国家地理中文网">国家地理中文网</span>#}
+{#                <span class="rss-amount">123</span>#}
+{#              </li>#}
+{#            </ul>            #}
+{#          </li>#}
+{#          <li class="rss-category">#}
+{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
+{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
+{#            <span class="rss-category-name" title="网易新闻">网易新闻</span>#}
+{#            <span class="rss-amount">999+</span>#}
+{#          </li>#}
+          <li class="rss-category">
+            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>
+            <img class="rss-category-image" src="../static/images/folder.png" />
+            <span class="rss-category-name" title="默认分类">默认分类</span>
+            <span class="rss-amount">0</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 推送内容 -->
+      <div class="rss-contents">
+        
+        <!-- 显示当前目录 -->
+        <div class="rss-current">
+          <span>当前 > </span>
+          <div id="rss_current_contents">
+            <span class="rss-current-contents"> 科技频道 </span>
+            <span> > </span>
+            <span class="rss-current-contents"> 博客园 </span>
+          </div>
+          <span class="rss-show-all">显示全部文章</span>
+        </div>
+
+        <!-- 控制 -->
+        <div class="rss-function-container">
+          <div class="rss-function">
+
+            <label for="rss-filter">选择过滤组：</label>
+            <select class="form-control" id="rss-filter">
+              <option>前端开发</option>
+              <option>后端开发</option>
+              <option>JavaScript</option>
+              <option>机器学习</option>
+            </select>
+
+            <div class="btn-group rss-filter-result">
+              <button type="button" class="btn btn-success">推荐<span class="rss-filter-number">156</span></button>
+              <button type="button" class="btn btn-default">过滤<span class="rss-filter-number">654</span></button>
+            </div>  
+
+            <span id="rss_add_filter" data-toggle="modal" data-target="#add_filter">添加过滤组<i class="fa fa-plus-square-o" aria-hidden="true"></i></span>        
+          </div>    
+
+          <!-- 控制拉取 -->
+          <div class="rss-function-pull"><i class="fa fa-bars rss-bars" aria-hidden="true"></i></div>
+        </div>
+
+        <!-- 内容显示 -->
+        <div class="rss-contents-detail">
+          
+          <div class="container-fluid">
+            <div class="row">
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>              
+              </div>
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>           
+              </div>
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>              
+              </div>
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>            
+              </div>
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>             
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+<!-- 模态框 -->
+<!-- 添加RSS源 -->
+<div class="modal fade" id="add_source" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">添加RSS源</h4>
+      </div>
+      <div class="modal-body">
+        
+        <form role="form">
+          <div class="form-group">
+            <input type="text" class="form-control" id="rss_input_source" placeholder="请在此处输入RSS源地址">
+          </div>
+
+          <div class="form-group">
+            <button id="rss_add_source" type="button" class="btn btn-default">提交</button>
+            <p id="rss_add_source_alert" class="rss-add-source-alert rss-alert-success">
+                  <span class="glyphicon glyphicon-ok"></span>
+                  <span class="rss-alert-contents"></span>
+            </p>
+            <!--提交RSS源，正在解析 -->
+            <div class="rss-analyze-loading" id="rss_analyze_loading">
+              <img src="../static/images/loading_2.svg">
+              <span>正在解析...</span>
+            </div>
+          </div>
+          <div class="form-group rss-source-input-name">
+            <input type="text" class="form-control" id="rss_source_input_name" placeholder="请输入RSS源名称，必填">
+          </div>
+          
+          <div class="form-group rss-choose-category">
+            
+            <span>选择类别：</span>
+            <span><img class="rss-category-image" src="../static/images/folder.png" /></span>
+            <span id="rss_hasChoose_category">默认分类</span>
+
+            <select multiple class="form-control" id="rss_choose_category">
+              <option>默认分类</option>
+            </select>            
+          </div>
+
+        </form>        
+
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" id="rss_add_source_submit" class="btn btn-primary">添加</button>
+      </div>
+    </div>
+  </div>
+</div>  
+
+<!-- 添加类别 -->
+<div class="modal fade" id="add_category" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">添加类别文件夹</h4>
+      </div>
+      <div class="modal-body">
+              
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="rss_input_category" class="col-sm-2 control-label">名称</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="rss_input_category" placeholder="输入类别名称">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="button" class="btn btn-default" id="rss_add_category">添加</button>
+              <p id="rss_add_category_alert" class="rss-add-source-alert rss-alert-success">
+                <span class="glyphicon glyphicon-ok"></span>
+                <span class="rss-alert-contents">成功添加类别：数学与算法</span>
+              </p>              
+            </div>
+          </div>
+        </form>        
+
+      </div>
+    </div>
+  </div>
+</div>  
+
+<!-- 添加过滤组 -->
+<div class="modal fade" id="add_filter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">添加过滤组</h4>
+      </div>
+      <div class="modal-body">
+        
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="rss_input_filter_name" class="col-sm-2 control-label">名称</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="rss_input_filter_name" placeholder="输入添加的过滤组名称">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="rss_input_filter_keyWord" class="col-sm-2 control-label">核心词</label>
+            <div class="col-sm-10">
+              <textarea class="form-control" rows="3" id="rss_input_filter_keyWord"></textarea>
+              <p class="rss-alert-text">提示：用逗号分开，输入关键词。如：javascript,node.js,angularjs,html5</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="submit" class="btn btn-default">添加</button>
+              <p class="bg-success rss-add-source-alert rss-alert-success">
+                <span class="glyphicon glyphicon-ok"></span>
+                添加成功
+              </p>                
+            </div>
+          </div>
+        </form>      
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 等待加载文章 -->
+<div class="rss-loading-contents">
+  <div class="rss-loading-shade"></div>
+  <img src="../static/images/loading_balls.svg">
+</div>
+
+<!-- 等待添加，滑到页尾的loading -->
+<div class="rss-loading-add">
+  <div class="rss-loading-shade-add"></div>
+  <img src="../static/images/loading_balls.svg">
+</div>
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="../static/js/libs/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../static/js/libs/bootstrap.min.js"></script>
+    <script src="../static/js/common.js" type="text/javascript"></script>
+    <script src="../static/js/rss_homepage.js" type="text/javascript"></script>
+  </body>
+</html>

@@ -23,7 +23,7 @@ class Article(models.Model):
     title = models.CharField(max_length=80)
     link = models.URLField()
     summary = models.CharField(max_length=255)
-    time = models.DateTimeField(default=timezone.now())
+    time = models.DateTimeField(default=timezone.now)
     key_word = models.CharField(max_length=200, null=True)
     # 外键，连接RSS源
     source = models.ForeignKey(Source)

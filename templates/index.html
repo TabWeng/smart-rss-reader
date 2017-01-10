@@ -37,6 +37,11 @@
       <div class="collapse navbar-collapse" id="rss_navbar_add_something">
         <ul class="nav navbar-nav navbar-right rss-add-source">
           <li>
+            <a href="#" id="rss_favorite">收藏夹
+              <i class="fa fa-star-o" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li>
             <a href="#" data-toggle="modal" data-target="#add_category" id="rss_add_category_button">添加类别
               <i class="fa fa-plus-square-o" aria-hidden="true"></i>
             </a>
@@ -292,7 +297,7 @@
             <span><img class="rss-category-image" src="../static/images/folder.png" /></span>
             <span id="rss_hasChoose_category">默认分类</span>
 
-            <select multiple class="form-control" id="rss_choose_category">
+            <select multiple class="form-control" id="rss_choose_category" value="默认分类">
               <option>默认分类</option>
             </select>            
           </div>

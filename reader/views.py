@@ -86,5 +86,8 @@ def addRssLink(request):
     else:
         return HttpResponse(returnStatusJson("404"), content_type="application/json")
 
+# 轮询获得文章
+def getArticle():
+    pass
 
 

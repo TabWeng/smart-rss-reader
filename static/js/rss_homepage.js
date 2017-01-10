@@ -73,6 +73,10 @@ function currentContents(){
 	$("body").on("click",".rss-show-all",function(){
 		$("#rss_current_contents").empty().html('<span class="rss-current-contents">全部文章</span>');
 	});
+	// 显示收藏夹
+	$("body").on("click","#rss_favorite",function(){
+		$("#rss_current_contents").empty().html('<span class="rss-current-contents">收藏夹</span>');
+	});
 }
 
 //----------------ajax-------------------
@@ -114,7 +118,11 @@ function loadSidebar_ajax(){
 			}
 
 			// 将获得的 category name 同时添加到“添加RSS源”分类列表里面
-			option += "<option value='"+item.name+"'>"+item.name+"</option>";
+			if (i == 0){
+				option = "<option value='"+item.name+"' selected='selected'>"+item.name+"</option>";
+			}else{
+				option += "<option value='"+item.name+"'>"+item.name+"</option>";
+			}
 		}
 
 		if (insertHtml_category != ""){
@@ -223,7 +231,6 @@ function addSource_ajax(){
 				var getRssLink = $("#rss_input_source").val();
 				var getRssName = $("#rss_source_input_name").val();
 				var getCategory = $("#rss_choose_category").val()[0];
-				console.log(getCategory);
 				var param = {
 					"rss_link":getRssLink,
 					"name":getRssName,

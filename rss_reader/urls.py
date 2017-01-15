@@ -33,5 +33,7 @@ urlpatterns += [
     # 添加rss源时，检测rss链接是否可用
     url(r'api/check_rssLink', views.checkRssLink),
     # 添加RSS源
-    url(r'api/add_rssLink', views.addRssLink)
+    url(r'api/add_rssLink', views.addRssLink),
+    # 加载文章
+    url(r'api/show_article', views.SourceToArticleListView.as_view())
 ]

@@ -117,6 +117,7 @@ body {
 	margin: 8px 0;
 	position: relative;
 	cursor: pointer;
+	font-size: 0.95em;
 }
 .rss-category-image {
 	position: relative;

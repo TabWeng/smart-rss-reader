@@ -11,6 +11,7 @@ currentContents();
 loadSidebar_ajax();
 addCategory_ajax();
 addSource_ajax();
+showSource_ajax();
 
 //---------------------- function --------------------------
 
@@ -135,7 +136,7 @@ function loadSidebar_ajax(){
 		}
 
 
-	},"json")
+	},"json");
 }
 
 // 添加类别
@@ -275,7 +276,21 @@ function addSource_ajax(){
 		// 关闭解析完成的rss源
 		$(".rss-source-input-name").css("display","none");
 	});
+}
 
+// 显示源内容
+function showSource_ajax(){
+	// 点击源
+	$("body").on("click",".rss-source-name",function(){
+		$.this = $(this);
+		id = CommonFunction.getId($.this.attr("id"));
+		param = {
+			"id" : id
+		};
+		$.get("api/show_article",param,function(data){
+				console.log(data)
+		},"json");
+	});
 }
 
 //--------------basic----------------

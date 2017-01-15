@@ -5,7 +5,7 @@ from reader.models import *
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from .serializers import CategorySerializers,SourceSerializers
+from .serializers import CategorySerializers,SourceToArticleSerializer
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
 from .common import *
@@ -25,6 +25,16 @@ class CategoryListView(APIView):
         category = Category.objects.all()
         serializers = CategorySerializers(category, many=True)
         return Response(serializers.data)
+
+# API
+# 文章加载
+class SourceToArticleListView(APIView):
+    def get(self,request):
+        get_id = request.GET.get("id")
+        source = Source.objects.filter(id=get_id)
+        serializers = SourceToArticleSerializer(source, many=True)
+        return Response(serializers.data)
+
 
 # 初始化后台进程
 class AppInitializer(object):

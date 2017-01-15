@@ -25,6 +25,7 @@ class Article(models.Model):
     summary = models.CharField(max_length=255)
     time = models.DateTimeField(default=timezone.now)
     key_word = models.CharField(max_length=200, null=True)
+    status = models.IntegerField(default=0)
     # 外键，连接RSS源
     source = models.ForeignKey(Source)
 

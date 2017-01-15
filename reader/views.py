@@ -9,11 +9,13 @@ from .serializers import CategorySerializers,SourceSerializers
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
 from .common import *
-import feedparser
 from rss_contents import tasks
+import feedparser
 # Create your views here.
 
 def index(request):
+    # tasks.processArticle.delay()
+    AppInitializer.initialize()
     return render(request,"index.html",locals())
 
 # API
@@ -23,6 +25,16 @@ class CategoryListView(APIView):
         category = Category.objects.all()
         serializers = CategorySerializers(category, many=True)
         return Response(serializers.data)
+
+# 初始化后台进程
+class AppInitializer(object):
+    initialized = False
+    @classmethod
+    def initialize(cls):
+        if not cls.initialized:
+            cls.initialized = True
+            from rss_contents import tasks
+            tasks.processArticle.delay()
 
 # API
 # 添加类别
@@ -34,7 +46,7 @@ def addCategory(request):
             # 类别已经存在
             return HttpResponse(returnStatusJson("400"), content_type="application/json")
         else:
-            # 类别不存在
+            # 类别不存在，则可以添加
             category = Category()
             category.name = get_name
             category.save()
@@ -86,6 +98,7 @@ def addRssLink(request):
         return HttpResponse(returnStatusJson("200",contents),content_type="application/json")
     else:
         return HttpResponse(returnStatusJson("404"), content_type="application/json")
+
 
 
 

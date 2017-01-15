@@ -111,3 +111,6 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR,"static"),)
 
+# CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/5'
+# BROKER_URL = 'redis://127.0.0.1:6379/6'
+

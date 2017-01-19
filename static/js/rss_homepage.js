@@ -12,6 +12,11 @@ loadSidebar_ajax();
 addCategory_ajax();
 addSource_ajax();
 showSource_ajax();
+showCategoryArticle_ajax();
+
+//init-----------------
+init();
+
 
 //---------------------- function --------------------------
 
@@ -80,7 +85,8 @@ function currentContents(){
 	});
 }
 
-//----------------ajax-------------------
+
+//---------------- ajax -------------------
 // 加载侧边栏、分类列表
 function loadSidebar_ajax(){
 	$.get("api/category_sidebar",function(data){
@@ -131,6 +137,8 @@ function loadSidebar_ajax(){
 			$(".rss-sidebar>ul").html(insertHtml_category);
 			// 同时添加到“添加RSS源”分类列表里面
 			$("#rss_choose_category").html(option);
+			// 同时初始化文章列表
+			$("#category_1").click();
 		}else{
 			alert("初始化加载失败");
 		}
@@ -287,13 +295,163 @@ function showSource_ajax(){
 		param = {
 			"id" : id
 		};
+		$(".rss-loading-contents").css("display","block"); //loading
 		$.get("api/show_article",param,function(data){
-				console.log(data)
+			initArticle(data[0]);
+			$(".rss-loading-contents").css("display","none"); //cancel loading
 		},"json");
 	});
 }
 
-//--------------basic----------------
+// 通过类别显示源内容
+function showCategoryArticle_ajax(){
+	$("body").on("click",".rss-category-name",function(){
+
+		$.this = $(this);
+		var id_arr = [];
+		// 获得 source 数组
+		var get_source_item = $.this.parent().find(".rss-source-name");
+		for (var i = 0; i <get_source_item.length; i++){
+			source_id = CommonFunction.getId(get_source_item[i].id);
+			id_arr.push(source_id);
+		}
+
+		// 每页的长度
+		var page_length = 20;
+		var begin = 0;
+		var end = begin + page_length;
+
+		id_arr = JSON.stringify(id_arr);//将数组转化为json
+		var param = {
+			"id_arr":id_arr,
+			"begin": begin,
+			"end": end
+		};
+
+		$(".rss-loading-contents").css("display","block"); //loading
+		$(".rss-contents-detail")[0].scrollTop = 0;
+		$.get("api/show_category_article",param,function(data){
+			initCategoryToArticle(data);
+			$(".rss-loading-contents").css("display","none"); //loading
+		});
+
+		// 分页
+		paginationArticle(id_arr, page_length);
+
+	});
+}
+
+//-------------- basic ---------------------
+
+// 更新文章内容(第一次加载)
+function initArticle(data) {
+	var articles = data["article_set"];
+	var contents = "";
+	for(var i=0; i < articles.length; i++){
+		var article = articles[i];
+		contents +=
+			'<div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">'+
+                '<div class="rss-detail-article">'+
+                  '<h4 class="rss-detail-category">'+data["name"]+'</h4>'+
+                  '<p class="rss-detail-title"><a href="'+article["link"]+'" target="_blank">'+ article["title"]+'</a></p>'+
+                  '<p class="rss-detail-summary">'+
+                     article["summary"] +
+                  '</p>'+
+                  '<div class="rss-detail-menu">'+
+					'<span class="rss-star glyphicon glyphicon-star" title="收藏"></span>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'
+	}
+	// 先清空再添加
+	var article_contents = $("#rss_article_contents");
+	article_contents.html("");
+	article_contents.append(contents);
+}
+
+// 更新分类的文章内容（第一次加载）
+function initCategoryToArticle(data) {
+	var articles = data;
+	var contents = "";
+
+	for(var i in articles){
+		var article = articles[i];
+		contents +=
+			'<div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">'+
+                '<div class="rss-detail-article">'+
+                  '<h4 class="rss-detail-category">'+article.source_name+'</h4>'+
+                  '<p class="rss-detail-title"><a href="'+article.link+'" target="_blank">'+ article.title+'</a></p>'+
+                  '<p class="rss-detail-summary">'+
+                     article.summary +
+                  '</p>'+
+                  '<div class="rss-detail-menu">'+
+					'<span class="rss-star glyphicon glyphicon-star" title="收藏"></span>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'
+	}
+	// 先清空再添加
+	var article_contents = $("#rss_article_contents");
+	article_contents.html("");
+	article_contents.append(contents);
+}
+
+// 分页加载文章
+function appendCategoryToArticle(data) {
+	var articles = data;
+	var contents = "";
+
+	for(var i in articles){
+		var article = articles[i];
+		contents +=
+			'<div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">'+
+                '<div class="rss-detail-article">'+
+                  '<h4 class="rss-detail-category">'+article.source_name+'</h4>'+
+                  '<p class="rss-detail-title"><a href="'+article.link+'" target="_blank">'+ article.title+'</a></p>'+
+                  '<p class="rss-detail-summary">'+
+                     article.summary +
+                  '</p>'+
+                  '<div class="rss-detail-menu">'+
+					'<span class="rss-star glyphicon glyphicon-star" title="收藏"></span>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'
+	}
+	// 先清空再添加
+	var article_contents = $("#rss_article_contents");
+	article_contents.append(contents);
+}
+
+// 分页功能
+function paginationArticle(id_arr, page_length){
+	var contents_detail_div = $(".rss-contents-detail");
+	var contain_scrollHeight = 0;
+	var contain_scrollTop = 0;
+	var contain_div_height = contents_detail_div.height();
+
+	var times = 1;
+	contents_detail_div.unbind("scroll").scroll(function(){
+		$.this = $(this);
+		contain_scrollHeight = $.this[0].scrollHeight;
+		contain_scrollTop = $.this[0].scrollTop;
+
+		var param = {
+			"id_arr": id_arr,
+			"begin": page_length * times,
+			"end": page_length * (times + 1)
+		};
+
+		// 到达底部
+		if(contain_div_height + contain_scrollTop >= contain_scrollHeight){
+			$(".rss-loading-add").css("display","block"); //loading
+			$.get("api/show_category_article", param, function(data) {
+				appendCategoryToArticle(data);
+				$(".rss-loading-add").css("display","none"); //loading
+            },"json");
+			times++;
+		}
+	});
+}
 
 
 });

@@ -336,6 +336,7 @@ body {
 .rss-detail-summary {
 	font-size: 0.85em;
 	padding: 5px;
+	overflow: hidden;
 }
 .rss-detail-menu {
 	border-top: 1px solid #ccc;
@@ -375,7 +376,7 @@ body {
 .rss-loading-shade {
 	width: 100%;
 	background-color: #222;
-	opacity: 0.5;	
+	opacity: 0.1;
 }
 /*加载增加动画*/
 .rss-loading-add {

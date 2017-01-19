@@ -8,7 +8,10 @@ from rest_framework.response import Response
 from .serializers import CategorySerializers,SourceToArticleSerializer
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
+from django.db.models import Q
 from .common import *
+import json
+from django.core.paginator import Paginator
 from rss_contents import tasks
 import feedparser
 # Create your views here.
@@ -108,6 +111,47 @@ def addRssLink(request):
         return HttpResponse(returnStatusJson("200",contents),content_type="application/json")
     else:
         return HttpResponse(returnStatusJson("404"), content_type="application/json")
+
+# API
+# 显示类别文章
+def showCategoryToArticle(request):
+    if request.is_ajax() and request.GET:
+        # 获得要查询的source分类
+        get_source_id_arr = request.GET.get("id_arr")
+
+        # 获得分页的开始和分页的结束位置
+        begin = request.GET.get("begin")
+        end = request.GET.get("end")
+
+        get_source_id_arr = eval(get_source_id_arr) #将字符串转化为数组对象
+        search_condition = ""
+        for i in get_source_id_arr:
+            search_condition += "Q(source_id="+i+")|"
+
+        search_condition = search_condition[:-1]
+
+        # 使用eval()将字符串转化为可执行代码
+        articles = Article.objects.filter(eval(search_condition))[begin:end]
+        items = {}
+        i = 0
+        for article in articles:
+            source_name = Source.objects.filter(id=article.source_id).values("name")[0]["name"]
+            item = {
+                i:{
+                    "id" : article.id,
+                    "title" : article.title,
+                    "link" : article.link,
+                    "summary" : article.summary,
+                    "status" : article.status,
+                    "source_id" : article.source_id,
+                    "source_name": source_name
+                }
+            }
+            i += 1
+            items.update(item)
+
+        return HttpResponse(json.dumps(items),content_type="application/json")
+
 
 
 

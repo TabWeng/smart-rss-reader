@@ -35,5 +35,7 @@ urlpatterns += [
     # 添加RSS源
     url(r'api/add_rssLink', views.addRssLink),
     # 加载文章
-    url(r'api/show_article', views.SourceToArticleListView.as_view())
+    url(r'api/show_article', views.SourceToArticleListView.as_view()),
+    # 通过类别加载文章
+    url(r'api/show_category_article',views.showCategoryToArticle)
 ]

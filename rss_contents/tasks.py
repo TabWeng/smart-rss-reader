@@ -37,7 +37,7 @@ def processLinks(link,id):
 
     # 解析链接
     f = feedparser.parse(link)
-    htmlTags = re.compile('<[\s|\S]*?>|lt|nbsp|gt')
+    htmlTags = re.compile('<[\s|\S]*?>|lt|nbsp|gt|&;')
 
     # 定义一个栈，用来控制更新
     stack = []
@@ -68,7 +68,11 @@ def processLinks(link,id):
         article = Article()
         article.title = get_title
         article.link = get_link
-        article.summary = textSummary
+
+        if len(textSummary) > 280:
+            textSummary = textSummary[:280]
+        article.summary = textSummary + "..."
+
         article.source_id = get_source_id
         article.key_word = get_key_word
         article.save()

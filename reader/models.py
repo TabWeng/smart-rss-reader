@@ -22,7 +22,7 @@ class Source(models.Model):
 class Article(models.Model):
     title = models.CharField(max_length=80)
     link = models.URLField()
-    summary = models.CharField(max_length=255)
+    summary = models.CharField(max_length=1000)
     time = models.DateTimeField(default=timezone.now)
     key_word = models.CharField(max_length=200, null=True)
     status = models.IntegerField(default=0)

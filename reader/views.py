@@ -131,7 +131,7 @@ def showCategoryToArticle(request):
         search_condition = search_condition[:-1]
 
         # 使用eval()将字符串转化为可执行代码
-        articles = Article.objects.filter(eval(search_condition))[begin:end]
+        articles = Article.objects.filter(eval(search_condition)).order_by("-id")[begin:end]
         items = {}
         i = 0
         for article in articles:

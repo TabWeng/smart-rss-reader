@@ -15,7 +15,7 @@ showSource_ajax();
 showCategoryArticle_ajax();
 
 //init-----------------
-init();
+initLoading();
 
 
 //---------------------- function --------------------------
@@ -85,6 +85,23 @@ function currentContents(){
 	});
 }
 
+// 初始化加载
+function initLoading(){
+	// 初始化标题加载
+	function titleLoad(){
+		$(".rss-loading-all").animate({
+			"opacity" : 0
+		},1000,function(){
+			$(this).css("display","none");
+		});
+	}
+	setTimeout(titleLoad, 2000);
+	$(".rss-loading-all>img").animate({
+		"opacity":1
+	},500);
+
+
+}
 
 //---------------- ajax -------------------
 // 加载侧边栏、分类列表

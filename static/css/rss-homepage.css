@@ -323,6 +323,8 @@ body {
 	padding: 5px;
 	color: #777;
 	border-bottom: 1px solid #ccc;
+	/*background-color: skyblue;*/
+	/*color: #fff;*/
 }
 .rss-detail-title {
 	padding: 5px;
@@ -400,6 +402,40 @@ body {
 	background-color: #20B2AA;
 	opacity: 0.1;
 	height: 100%;
+}
+
+/*全屏加载动画*/
+.rss-loading-all {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 3000;
+}
+.rss-loading-shade-all {
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	opacity: 0.95;
+	text-align: center;
+}
+.rss-loading-all > img {
+	display: block;
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	top: calc(60% - 50px);
+	left: calc(50% - 50px);
+	opacity: 0;
+}
+.rss-loading-all > strong {
+	position: absolute;
+	top: calc(45% - 57px);
+	left: calc(50% - 310px);
+	color: #fff;
+	font-size: 80px;
+	/*外部字体*/
+	/*font-family:'SFJ_haokait859e8374d17e76';*/
+	font-family: "华文中宋";
 }
 
 /*解析rss中的加载动画*/

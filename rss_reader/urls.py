@@ -37,5 +37,7 @@ urlpatterns += [
     # 加载文章
     url(r'api/show_article', views.SourceToArticleListView.as_view()),
     # 通过类别加载文章
-    url(r'api/show_category_article',views.showCategoryToArticle)
+    url(r'api/show_category_article',views.showCategoryToArticle),
+    # 通过文章状态
+    url(r'api/update_article_status', views.updateArticleStatus)
 ]

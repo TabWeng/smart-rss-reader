@@ -10,7 +10,9 @@
     <link href="../static/css/libs/bootstrap.min.css" rel="stylesheet">
     <link href="../static/css/libs/font-awesome.min.css" rel="stylesheet">
     <link href="../static/css/rss-homepage.css" rel="stylesheet">
-{#    <link href='//cdn.webfont.youziku.com/webfonts/nomal/97910/46456/588030e1f629d81b34b9d395.css' rel='stylesheet' type='text/css' />#}
+
+    <!-- <link href='//cdn.webfont.youziku.com/webfonts/nomal/97910/46456/588030e1f629d81b34b9d395.css' rel='stylesheet' type='text/css' /> -->
+    
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -37,11 +39,13 @@
         </div>
       <div class="collapse navbar-collapse" id="rss_navbar_add_something">
         <ul class="nav navbar-nav navbar-right rss-add-source">
-          <li>
+
+<!--           <li>
             <a href="#" id="rss_favorite">收藏夹
               <i class="fa fa-star-o" aria-hidden="true"></i>
             </a>
-          </li>
+          </li> -->
+
           <li>
             <a href="#" data-toggle="modal" data-target="#add_category" id="rss_add_category_button">添加类别
               <i class="fa fa-plus-square-o" aria-hidden="true"></i>
@@ -63,78 +67,80 @@
       <!-- 侧边栏 -->
       <div class="rss-sidebar">
         <ul>
-{#          <li class="rss-category">#}
-{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
-{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
-{#            <span class="rss-category-name" title="科技频道">科技频道</span>#}
-{#            <span class="rss-amount">356</span>#}
-{#            <ul>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" tilte="有道词典">有道词典</span>#}
-{#                <span class="rss-amount">666</span>#}
-{#              </li>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" title="国家地理中文网">国家地理中文网</span>#}
-{#                <span class="rss-amount">123</span>#}
-{#              </li>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" tilte="有道词典">有道词典</span>#}
-{#                <span class="rss-amount">222</span>#}
-{#              </li>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" title="果壳网-科学人">果壳网-科学人</span>#}
-{#                <span class="rss-amount">333</span>#}
-{#              </li>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" title="有道词典">有道词典</span>#}
-{#                <span class="rss-amount">555</span>#}
-{#              </li>#}
-{#            </ul>#}
-{#          </li>#}
-{#          <li class="rss-category">#}
-{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
-{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
-{#            <span class="rss-category-name" title="36氪">36氪</span>#}
-{#            <span class="rss-amount">356</span>#}
-{#          </li>#}
-{#          <li class="rss-category">#}
-{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
-{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
-{#            <span class="rss-category-name" title="腾讯科技">腾讯科技</span>#}
-{#            <span class="rss-amount">356</span>#}
-{#            <ul>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" title="有道词典">有道词典</span>#}
-{#                <span class="rss-amount">666</span>#}
-{#              </li>#}
-{#              <li>#}
-{#                <img class="rss-source-image" src="../static/images/rss.png" />#}
-{#                <span class="rss-source-name" title="国家地理中文网">国家地理中文网</span>#}
-{#                <span class="rss-amount">123</span>#}
-{#              </li>#}
-{#            </ul>            #}
-{#          </li>#}
-{#          <li class="rss-category">#}
-{#            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>#}
-{#            <img class="rss-category-image" src="../static/images/folder.png" />#}
-{#            <span class="rss-category-name" title="网易新闻">网易新闻</span>#}
-{#            <span class="rss-amount">999+</span>#}
-{#          </li>#}
+<!-- 
+          <li class="rss-category">
+            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>
+            <img class="rss-category-image" src="../static/images/folder.png" />
+            <span class="rss-category-name" title="科技频道">科技频道</span>
+            <span class="rss-amount">356</span>
+            <ul>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" tilte="有道词典">有道词典</span>
+                <span class="rss-amount">666</span>
+              </li>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" title="国家地理中文网">国家地理中文网</span>
+                <span class="rss-amount">123</span>
+              </li>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" tilte="有道词典">有道词典</span>
+                <span class="rss-amount">222</span>
+              </li>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" title="果壳网-科学人">果壳网-科学人</span>
+                <span class="rss-amount">333</span>
+              </li>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" title="有道词典">有道词典</span>
+                <span class="rss-amount">555</span>
+              </li>
+            </ul>
+          </li>
+          <li class="rss-category">
+            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>
+            <img class="rss-category-image" src="../static/images/folder.png" />
+            <span class="rss-category-name" title="36氪">36氪</span>
+            <span class="rss-amount">356</span>
+          </li>
+          <li class="rss-category">
+            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>
+            <img class="rss-category-image" src="../static/images/folder.png" />
+            <span class="rss-category-name" title="腾讯科技">腾讯科技</span>
+            <span class="rss-amount">356</span>
+            <ul>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" title="有道词典">有道词典</span>
+                <span class="rss-amount">666</span>
+              </li>
+              <li>
+                <img class="rss-source-image" src="../static/images/rss.png" />
+                <span class="rss-source-name" title="国家地理中文网">国家地理中文网</span>
+                <span class="rss-amount">123</span>
+              </li>
+            </ul>
+          </li>
+          <li class="rss-category">
+            <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>
+            <img class="rss-category-image" src="../static/images/folder.png" />
+            <span class="rss-category-name" title="网易新闻">网易新闻</span>
+            <span class="rss-amount">999+</span>
+          </li>
+
           <li class="rss-category">
             <i class="fa fa-caret-right rss-caret" aria-hidden="true"></i>
             <img class="rss-category-image" src="../static/images/folder.png" />
             <span class="rss-category-name" title="默认分类">默认分类</span>
             <span class="rss-amount">0</span>
           </li>
+ -->
         </ul>
       </div>
-
       <!-- 推送内容 -->
       <div class="rss-contents">
         
@@ -178,30 +184,32 @@
           
           <div class="container-fluid">
             <div class="row" id="rss_article_contents">
-{#              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">#}
-{#                <div class="rss-detail-article">#}
-{#                  <h4 class="rss-detail-category">博客园-首页</h4>#}
-{#                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>#}
-{#                  <p class="rss-detail-summary">#}
-{#                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！#}
-{#                  </p>#}
-{#                  <div class="rss-detail-menu">#}
-{#                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>#}
-{#                  </div>#}
-{#                </div>#}
-{#              </div>#}
-{#              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">#}
-{#                <div class="rss-detail-article">#}
-{#                  <h4 class="rss-detail-category">博客园-首页</h4>#}
-{#                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>#}
-{#                  <p class="rss-detail-summary">#}
-{#                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！#}
-{#                  </p>#}
-{#                  <div class="rss-detail-menu">#}
-{#                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>#}
-{#                  </div>#}
-{#                </div>              #}
-{#              </div>#}
+
+<!--               <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <input type="button" class="rss-status-button-neverRead" value="未读">
+                  </div>
+                </div>
+              </div>
+              <div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">
+                <div class="rss-detail-article">
+                  <h4 class="rss-detail-category">博客园-首页</h4>
+                  <p class="rss-detail-title"><a href="#">React Native从零开始（一）React Native编辑器配置（webstorm）</a></p>
+                  <p class="rss-detail-summary">
+                    备份是容灾的基础，是指为防止系统出现操作失误或系统故障导致数据丢失，而将全部或部分数据集合从应用主机的硬盘或阵列复制到其它的存储介质的过程。而对于一些网站、系统来说，数据库就是一切，所以做好数据库的备份是至关重要的！
+                  </p>
+                  <div class="rss-detail-menu">
+                    <span class="rss-star glyphicon glyphicon-star" title="收藏"></span>
+                  </div>
+                </div>
+              </div>
+ -->
             </div>
           </div>
 

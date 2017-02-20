@@ -16,4 +16,4 @@ app.config_from_object('rss_contents.config')
 # app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 # if __name__ == '__main__':
-    # app.start()
+#     app.start()

@@ -13,6 +13,7 @@ addCategory_ajax();
 addSource_ajax();
 showSource_ajax();
 showCategoryArticle_ajax();
+statusChange_ajax();
 
 //init-----------------
 initLoading();
@@ -103,6 +104,7 @@ function initLoading(){
 
 }
 
+
 //---------------- ajax -------------------
 // 加载侧边栏、分类列表
 function loadSidebar_ajax(){
@@ -167,11 +169,10 @@ function loadSidebar_ajax(){
 // 添加类别
 function addCategory_ajax(){
 	$("#rss_add_category").click(function(){
-		var input_category = $("#rss_input_category").val();
-		if(input_category == ""){
+		var category_input = $("#rss_input_category").val();
+		if(category_input == ""){
 			CommonFunction.addAlert("rss_add_category_alert","提示：请输入类别名称","0");
 		}else{
-			var category_input = $("#rss_input_category").val();
 			var param = {
 				"name":category_input
 			};
@@ -190,7 +191,11 @@ function addCategory_ajax(){
 						'<span class="rss-amount">'+ data.amount +'</span>'+
 						'</li>';
 
+					// 更新显示到页面
 					$(".rss-sidebar>ul").append(insertHtml_category);
+					// 更新到RSS源添加的分类中
+					var option = "<option value='"+data.name+"'>"+data.name+"</option>";
+					$("#rss_choose_category").append(option);
 				}
 			});
 		}
@@ -308,15 +313,31 @@ function showSource_ajax(){
 	// 点击源
 	$("body").on("click",".rss-source-name",function(){
 		$.this = $(this);
-		id = CommonFunction.getId($.this.attr("id"));
-		param = {
-			"id" : id
+		var id = CommonFunction.getId($.this.attr("id"));
+		var id_arr = [];
+		id_arr.push(id);
+
+		// 每页的长度
+		var page_length = 20;
+		var begin = 0;
+		var end = begin + page_length;
+
+		id_arr = JSON.stringify(id_arr);//将数组转化为json
+		var param = {
+			"id_arr":id_arr,
+			"begin": begin,
+			"end": end
 		};
+
 		$(".rss-loading-contents").css("display","block"); //loading
+		$(".rss-contents-detail")[0].scrollTop = 0;
 		$.get("api/show_article",param,function(data){
 			initArticle(data[0]);
 			$(".rss-loading-contents").css("display","none"); //cancel loading
 		},"json");
+
+		// 分页
+		paginationArticle(id_arr, page_length,"source");
 	});
 }
 
@@ -328,6 +349,14 @@ function showCategoryArticle_ajax(){
 		var id_arr = [];
 		// 获得 source 数组
 		var get_source_item = $.this.parent().find(".rss-source-name");
+
+		// 如果类别中没有源，则直接停止查询
+		if(get_source_item.length == "0"){
+			var article_contents = $("#rss_article_contents");
+			article_contents.html("");
+			return;
+		}
+
 		for (var i = 0; i <get_source_item.length; i++){
 			source_id = CommonFunction.getId(get_source_item[i].id);
 			id_arr.push(source_id);
@@ -353,29 +382,100 @@ function showCategoryArticle_ajax(){
 		});
 
 		// 分页
-		paginationArticle(id_arr, page_length);
+		paginationArticle(id_arr, page_length, "category");
 
 	});
 }
 
+// 改变文章的状态
+function statusChange_ajax(){
+	$.body = $("body");
+
+	// 点击文章的按钮，改变状态
+	$.body.on("click",".rss-article-button",function(){
+		$.this = $(this);
+		var id = CommonFunction.getId($.this.attr("id"));
+
+		// 如果是未读状态，则改为已读状态
+		if($.this.hasClass("rss-status-button-neverRead")){
+			setArticleStatus_ajax(id,"toAlreadyRead",$.this);
+			// 如果是已读状态，则把状态改为未读
+		}else if($.this.hasClass("rss-status-button-alreadyRead")){
+			setArticleStatus_ajax(id,"toNeverRead",$.this);
+		}else{
+			console.log("no find the true status");
+		}
+	});
+
+	// 点击文章的按钮，改变为已知状态
+	$.body.on("click",".rss-detail-title>a",function(){
+		$.this = $(this);
+		var id = CommonFunction.getId($.this.attr("id"));
+		// 设为已读
+		var getChangeElement = $.this.parent().parent().find(".rss-article-button");
+
+		if(getChangeElement.val() == "未读"){
+				setArticleStatus_ajax(id,"toAlreadyRead",getChangeElement);
+		}
+	});
+}
+
+//-------------- ajax basic ----------------
+// 设置为已读状态
+	// 参数id 为要设置为已读的文章的id
+	// 参数targetStatus 是要成为的目标状态
+	// 参数changeElement 是要修改为目标状态的节点
+function setArticleStatus_ajax(id,targetStatus,changeElement){
+	var status = 0;
+	if(targetStatus == "toAlreadyRead"){
+		status = 1;
+	}else if(targetStatus == "toNeverRead"){
+		status = 0;
+	}else{
+		console.log("status err");
+	}
+
+	var param = {
+		"id":id,
+		"status":status
+	};
+	$.get("api/update_article_status",param,function(data){
+		if(data.status == "200"){
+			if(status == 1){
+				// 修改为目标状态
+				changeElement.removeClass("rss-status-button-neverRead").addClass("rss-status-button-alreadyRead").attr("value","已读");
+			}else if(status == 0){
+				changeElement.removeClass("rss-status-button-alreadyRead").addClass("rss-status-button-neverRead").attr("value","未读");
+			}else{}
+
+		}else{
+			console.log("status change err");
+		}
+	});
+}
+});
+
 //-------------- basic ---------------------
 
-// 更新文章内容(第一次加载)
+// 更新文章内容(针对source, 第一次加载)
 function initArticle(data) {
+	// 正序（必须要转行为逆序）
 	var articles = data["article_set"];
 	var contents = "";
+
+	// 转为逆序（因为前端是逆序显示）
 	for(var i=0; i < articles.length; i++){
 		var article = articles[i];
 		contents +=
 			'<div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">'+
                 '<div class="rss-detail-article">'+
                   '<h4 class="rss-detail-category">'+data["name"]+'</h4>'+
-                  '<p class="rss-detail-title"><a href="'+article["link"]+'" target="_blank">'+ article["title"]+'</a></p>'+
+                  '<p class="rss-detail-title"><a href="'+article["link"]+'" target="_blank"'+' id="link_'+article["id"]+'">'+ article["title"]+'</a></p>'+
                   '<p class="rss-detail-summary">'+
                      article["summary"] +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
-					'<span class="rss-star glyphicon glyphicon-star" title="收藏"></span>'+
+					'<input id="button_'+article["id"]+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
                   '</div>'+
                 '</div>'+
               '</div>'
@@ -385,8 +485,35 @@ function initArticle(data) {
 	article_contents.html("");
 	article_contents.append(contents);
 }
+// 分页加载文章（针对source）
+function appendToArticle(data){
+	// 正序（必须要转行为逆序）
+	var articles = data["article_set"];
+	var contents = "";
 
-// 更新分类的文章内容（第一次加载）
+	// 转为逆序（因为前端是逆序显示）
+	for(var i=0; i < articles.length; i++){
+		var article = articles[i];
+		contents +=
+			'<div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">'+
+                '<div class="rss-detail-article">'+
+                  '<h4 class="rss-detail-category">'+data["name"]+'</h4>'+
+                  '<p class="rss-detail-title"><a href="'+article["link"]+'" target="_blank"'+' id="link_'+article["id"]+'">'+ article["title"]+'</a></p>'+
+                  '<p class="rss-detail-summary">'+
+                     article["summary"] +
+                  '</p>'+
+                  '<div class="rss-detail-menu">'+
+					'<input id="button_'+article["id"]+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
+                  '</div>'+
+                '</div>'+
+              '</div>'
+	}
+	// 直接在后面添加
+	var article_contents = $("#rss_article_contents");
+	article_contents.append(contents);
+}
+
+// 更新分类的文章内容（针对category, 第一次加载）
 function initCategoryToArticle(data) {
 	var articles = data;
 	var contents = "";
@@ -397,12 +524,12 @@ function initCategoryToArticle(data) {
 			'<div class="rss-detail-layout col-lg-3 col-md-4 col-sm-6">'+
                 '<div class="rss-detail-article">'+
                   '<h4 class="rss-detail-category">'+article.source_name+'</h4>'+
-                  '<p class="rss-detail-title"><a href="'+article.link+'" target="_blank">'+ article.title+'</a></p>'+
+                  '<p class="rss-detail-title"><a href="'+article.link+'" target="_blank"'+' id="link_'+article.id+'">'+ article.title+'</a></p>'+
                   '<p class="rss-detail-summary">'+
                      article.summary +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
-					'<span class="rss-star glyphicon glyphicon-star" title="收藏"></span>'+
+						'<input id="button_'+article.id+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
                   '</div>'+
                 '</div>'+
               '</div>'
@@ -412,8 +539,7 @@ function initCategoryToArticle(data) {
 	article_contents.html("");
 	article_contents.append(contents);
 }
-
-// 分页加载文章
+// 分页加载文章（针对category）
 function appendCategoryToArticle(data) {
 	var articles = data;
 	var contents = "";
@@ -429,18 +555,19 @@ function appendCategoryToArticle(data) {
                      article.summary +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
-					'<span class="rss-star glyphicon glyphicon-star" title="收藏"></span>'+
+					'<input id="button_'+article.id+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
                   '</div>'+
                 '</div>'+
               '</div>'
 	}
-	// 先清空再添加
+	// 在最后添加
 	var article_contents = $("#rss_article_contents");
 	article_contents.append(contents);
 }
 
 // 分页功能
-function paginationArticle(id_arr, page_length){
+	// way 是分页的选择，一共有 category 和 source 两种
+function paginationArticle(id_arr, page_length, way){
 	var contents_detail_div = $(".rss-contents-detail");
 	var contain_scrollHeight = 0;
 	var contain_scrollTop = 0;
@@ -461,14 +588,20 @@ function paginationArticle(id_arr, page_length){
 		// 到达底部
 		if(contain_div_height + contain_scrollTop >= contain_scrollHeight){
 			$(".rss-loading-add").css("display","block"); //loading
-			$.get("api/show_category_article", param, function(data) {
-				appendCategoryToArticle(data);
-				$(".rss-loading-add").css("display","none"); //loading
-            },"json");
+
+			if(way == "category"){
+				$.get("api/show_category_article", param, function(data) {
+					appendCategoryToArticle(data);
+					$(".rss-loading-add").css("display","none"); //cancel loading
+				},"json");
+			}else if(way == "source"){
+				$.get("api/show_article",param,function(data){
+					appendToArticle(data[0]);
+					$(".rss-loading-add").css("display","none"); //cancel loading
+				},"json");
+			}else{}
+
 			times++;
 		}
 	});
 }
-
-
-});

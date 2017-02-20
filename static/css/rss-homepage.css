@@ -349,6 +349,38 @@ body {
 	bottom: 0;
 	background-color: #eee;
 }
+
+/*按钮未读状态*/
+.rss-status-button-neverRead {
+	float: right;
+	margin-right: 10px;
+	margin-top: 10px;
+	height: 20px;
+	line-height: 13px;
+	font-size: 12px;
+	background-color: #4cae4c;
+	cursor: pointer;
+	border: none;
+	border-radius: 5px;
+	padding: 0 10px;
+	color: #fff;
+}
+/*按钮已读状态*/
+.rss-status-button-alreadyRead {
+	float: right;
+	margin-right: 10px;
+	margin-top: 10px;
+	height: 20px;
+	line-height: 13px;
+	font-size: 12px;
+	background-color: #e3e3e3;
+	cursor: pointer;
+	border: 1px solid #cccccc;
+	border-radius: 5px;
+	padding: 0 10px;
+	color: #999;
+}
+
 .rss-star {
 	color: #FF8C00;
 	float: right;
@@ -380,6 +412,9 @@ body {
 	background-color: #222;
 	opacity: 0.1;
 }
+
+
+
 /*加载增加动画*/
 .rss-loading-add {
 	position: absolute;

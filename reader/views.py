@@ -33,11 +33,20 @@ class CategoryListView(APIView):
 # 文章加载
 class SourceToArticleListView(APIView):
     def get(self,request):
-        get_id = request.GET.get("id")
-        source = Source.objects.filter(id=get_id)
-        serializers = SourceToArticleSerializer(source, many=True)
-        return Response(serializers.data)
+        get_id_arr = request.GET.get("id_arr")
 
+        # 将字符串转化为列表
+        id_arr = eval(get_id_arr)
+        # 获得source的id
+        get_id = id_arr[0]
+
+        # 分页的起止
+        begin = request.GET.get("begin")
+        end = request.GET.get("end")
+
+        source = Source.objects.filter(id=get_id)
+        serializers = SourceToArticleSerializer(source, many=True,context={'begin':begin,"end":end})
+        return Response(serializers.data)
 
 # 初始化后台进程
 class AppInitializer(object):
@@ -130,8 +139,8 @@ def showCategoryToArticle(request):
 
         search_condition = search_condition[:-1]
 
-        # 使用eval()将字符串转化为可执行代码
-        articles = Article.objects.filter(eval(search_condition)).order_by("-id")[begin:end]
+        # 使用eval()将字符串转化为可执行代码，逆序
+        articles = Article.objects.filter(eval(search_condition)).filter(status=0).order_by("-id")[begin:end]
         items = {}
         i = 0
         for article in articles:
@@ -152,6 +161,15 @@ def showCategoryToArticle(request):
 
         return HttpResponse(json.dumps(items),content_type="application/json")
 
+#API
+# 修改文章的状态
+def updateArticleStatus(request):
+    if request.is_ajax() and request.GET:
+        get_article_id = request.GET.get("id")
+        get_target_status = request.GET.get("status")
+        # 修改为目标状态
+        Article.objects.filter(id=get_article_id).update(status=get_target_status)
+        return HttpResponse(returnStatusJson("200"),content_type="application/json")
 
 
 

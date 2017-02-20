@@ -15,7 +15,7 @@ import jieba.analyse
 def processArticle():
     while True:
         getArticle()
-        sleep(60 * 5)
+        sleep(5 * 60)
 
 # 获得文章
 def getArticle():
@@ -29,14 +29,20 @@ def getArticle():
 # link是要分析的链接，id是该链接对应的source
 def processLinks(link,id):
     # 获取数据库最新的一条数据的link，如果是首次，则为空
+    # 获得属于该source的所有文章
     getLast = Article.objects.filter(source_id=id)
     last_link = ""
+    # 如果Article这张表有内容，说明不是第一次，则getLast不为空，那么执行if里面的语句，否则不执行
     if getLast:
+        # 获得在数据库中该source的最新的一篇文章，取id最大的则是，所以用Max
         last_id = Article.objects.filter(source_id=id).aggregate(last_id=Max("id"))
+        # 获得id后，就可以获得该文章的link了
         last_link = Article.objects.filter(id=last_id["last_id"]).values("link")[0]["link"]
 
     # 解析链接
+    # 解析link，看看是否有更新
     f = feedparser.parse(link)
+    # 去除标签、空格等其他无用字符的正则匹配
     htmlTags = re.compile('<[\s|\S]*?>|lt|nbsp|gt|&;')
 
     # 定义一个栈，用来控制更新

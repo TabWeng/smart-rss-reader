@@ -32,7 +32,13 @@ class Article(models.Model):
 # 过滤组模型
 class Filter(models.Model):
     name = models.CharField(max_length=50)
-    filter_word = models.CharField(max_length=510,null=True)
+    filter_word = models.CharField(max_length=510, null=True)
+
+    prior_data = models.CharField(max_length=50, null=True)
+    recommend_key_num = models.CharField(max_length=200, null=True)
+    filter_key_num = models.CharField(max_length=200,null=True)
+    recommend_show_num = models.IntegerField(default=0, null=True)
+    filter_show_num = models.IntegerField(default=0, null=True)
     # 外键，连接类别
     category = models.ForeignKey(Category)
 

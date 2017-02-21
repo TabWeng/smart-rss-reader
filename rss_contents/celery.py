@@ -10,6 +10,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rss_reader.settings')
 # from django.conf import settings
 
 app = Celery('rss_contents', include=['rss_contents.tasks'])
+# app = Celery('rss_contents')
 
 app.config_from_object('rss_contents.config')
 # app.config_from_object('django.conf:settings')

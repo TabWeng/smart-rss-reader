@@ -14,6 +14,7 @@ addSource_ajax();
 showSource_ajax();
 showCategoryArticle_ajax();
 statusChange_ajax();
+addFilter_ajax();
 
 //init-----------------
 initLoading();
@@ -65,16 +66,16 @@ function currentContents(){
 	// 点击类别
 	$("body").on("click",".rss-category-name",function(){
 		var category_name = $(this).html();
-		$("#rss_current_contents").empty().html('<span class="rss-current-contents">'+category_name+'</span>');
+		$("#rss_current_contents").empty().html('<span id="show_current_category" class="rss-current-contents">'+category_name+'</span>');
 	});
 	// 点击源标题
 	$("body").on("click",".rss-category>ul>li",function(){
 		$.this = $(this);
 		var category_name = $.this.parent().parent().children(".rss-category-name").html();
 		var source_name = $.this.children(".rss-source-name").html();
-		$("#rss_current_contents").empty().html('<span class="rss-current-contents">'+category_name+'</span>'+
+		$("#rss_current_contents").empty().html('<span id="show_current_category" class="rss-current-contents">'+category_name+'</span>'+
 			'<span> > </span>'+
-			'<span class="rss-current-contents">'+source_name+'</span>');
+			'<span id="show_current_source" class="rss-current-contents">'+source_name+'</span>');
 	});
 	// 显示全部
 	$("body").on("click",".rss-show-all",function(){
@@ -338,6 +339,9 @@ function showSource_ajax(){
 
 		// 分页
 		paginationArticle(id_arr, page_length,"source");
+
+		//不可添加过滤组
+		$("#rss_add_filter").css("display","none");
 	});
 }
 
@@ -384,6 +388,12 @@ function showCategoryArticle_ajax(){
 		// 分页
 		paginationArticle(id_arr, page_length, "category");
 
+		//可以添加过滤组
+		$("#rss_add_filter").css("display","block");
+		// 显示过滤组的选项
+		var category_id = CommonFunction.getId($.this.attr("id"));
+		showFilterGroup_ajax(category_id);
+
 	});
 }
 
@@ -420,6 +430,125 @@ function statusChange_ajax(){
 	});
 }
 
+// 添加过滤组
+function addFilter_ajax(){
+	$("#rss_add_filter").click(function(){
+		// 获取三个数据框节点、一个提示框
+		var rss_input_filter_name = $("#rss_input_filter_name");
+		var rss_filter_input = $("#rss_filter_input");
+		var keyWord_contain = $("#rss_filter_keyWord_contain");
+		var rss_add_filter_alert = $("#rss_add_filter_alert");
+		// 先清空原来的数据
+		rss_input_filter_name.val("");
+		rss_filter_input.val("");
+		keyWord_contain.empty();
+		rss_add_filter_alert.css("display","none");
+
+		var check = false;
+		// 输入框失去焦点时进行校验
+		rss_input_filter_name.blur(function(){
+			var filter_name = $(this).val();
+
+			if(filter_name == ""){
+				CommonFunction.addAlert("rss_add_filter_alert","请输入过滤组名称","0");
+			}else{
+				var param = {
+					"filter_name":filter_name
+				};
+				// 后台请求检测
+				$.get("api/check_filterName",param,function(data){
+					if(data.status == "200"){
+						check = true;
+						rss_add_filter_alert.css("display","none");
+					}else if(data.status == "400"){
+						// 提示已经存在
+						CommonFunction.addAlert("rss_add_filter_alert","添加的过滤组：'"+filter_name+"' 已经存在","0");
+					}else {
+						// 提示未知错误
+						CommonFunction.addAlert("rss_add_filter_alert","添加的过滤组名称存在未知错误","0");
+					}
+				},'json');
+			}
+		});
+
+		// 添加核心词到容器中
+		rss_filter_input.on("input",function(){
+			$.this = $(this);
+			var get_keyWord = $.this.val();
+			var re = /[,|，]/g;
+			var keyWord_arr = get_keyWord.split(re);
+			if(keyWord_arr.length > 1){
+				var get_all_keyWord = $(".rss-keyWord-label");
+				for (var i=0; i<keyWord_arr.length-1; i++){
+					// 校验输入是否已经存在，若存在，则不进行操作
+					var flag = true;
+					for(var j=0; j<get_all_keyWord.length; j++){
+						if(keyWord_arr[i] == get_all_keyWord.eq(j).html()){
+							flag = false;
+							break;
+						}
+					}
+					if(!flag){
+						$.this.val("");
+						continue;
+					}
+
+					// 插入核心词
+					var keyWord_item =
+						'<div class="rss-filter-keyWord-item">'+
+							'<span class="rss-keyWord-label">'+keyWord_arr[i].toLowerCase()+'</span>'+
+							'<span class="rss-filter-icon-remove glyphicon glyphicon-remove" aria-hidden="true"></span>'+
+						'</div>';
+					keyWord_contain.prepend(keyWord_item);
+				}
+				// 清零
+				$.this.val("");
+			}
+		});
+
+		// remove核心词
+		$("body").on('click','.rss-filter-icon-remove',function(){
+			$(this).parent().remove();
+		});
+
+		// 提交添加
+		$("#filter_submit").unbind("click").click(function(){
+			if(check == true){
+				// 获得当前category的name
+				var category_name = $("#show_current_category").html();
+				// 获得输入的filter的name
+				var filter_name = rss_input_filter_name.val();
+				// 获得关键词数组
+				var keyWord_arr = [];
+				var get_keyWord_element = $(".rss-keyWord-label");
+				for(var i=0; i<get_keyWord_element.length; i++){
+					keyWord_arr.push(get_keyWord_element.eq(i).html());
+				}
+				keyWord_arr = JSON.stringify(keyWord_arr);
+				// json格式的参数
+				var param = {
+					"category_name" : category_name,
+					"filter_name" : filter_name,
+					"keyWord_arr" : keyWord_arr
+				};
+				$.get("api/add_filter",param,function(data){
+					if(data.status == "200"){
+						CommonFunction.addAlert("rss_add_filter_alert","过滤组 '"+category_name+"' 添加成功","1");
+						// 清空
+						rss_input_filter_name.val("");
+						rss_filter_input.val("");
+						keyWord_contain.empty();
+					}else{
+						CommonFunction.addAlert("rss_add_filter_alert","添加失败","0");
+					}
+				},'json');
+				check = false;
+			}
+		});
+	});
+}
+
+
 //-------------- ajax basic ----------------
 // 设置为已读状态
 	// 参数id 为要设置为已读的文章的id
@@ -453,7 +582,20 @@ function setArticleStatus_ajax(id,targetStatus,changeElement){
 		}
 	});
 }
-});
+
+
+// 显示过滤组的选项
+	// 参数 category_id 为要显示的类别的过滤组
+	// 参数 source_id 为只显示的二级菜单，若果是类别，则为 "all"
+function showFilterGroup_ajax(category_id, source_id){
+	var param = {
+		"category_id":category_id,
+		"source_id":source_id
+	};
+	$.get("api/show_filterGroup", param, function(data){
+
+	},'json');
+}
 
 //-------------- basic ---------------------
 
@@ -605,3 +747,5 @@ function paginationArticle(id_arr, page_length, way){
 		}
 	});
 }
+
+});

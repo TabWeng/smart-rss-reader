@@ -5,7 +5,7 @@ from reader.models import *
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from .serializers import CategorySerializers,SourceToArticleSerializer
+from .serializers import CategorySerializer,SourceToArticleSerializer
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
 from django.db.models import Q
@@ -26,7 +26,7 @@ def index(request):
 class CategoryListView(APIView):
     def get(self, request):
         category = Category.objects.all()
-        serializers = CategorySerializers(category, many=True)
+        serializers = CategorySerializer(category, many=True)
         return Response(serializers.data)
 
 # API
@@ -170,6 +170,74 @@ def updateArticleStatus(request):
         # 修改为目标状态
         Article.objects.filter(id=get_article_id).update(status=get_target_status)
         return HttpResponse(returnStatusJson("200"),content_type="application/json")
+
+#API
+# 显示过滤组的选项
+def showFilterGroup(request):
+    if request.is_ajax() and request.GET:
+        category_id = request.GET.get("category_id")
+        source_id = request.GET.get("source_id")
+
+        items = {}
+        i = 0
+        filters = Filter.objects.filter(category_id=category_id)
+        # 若不为空
+        if filters:
+            for theFilter in filters:
+                items = {
+                    i:{
+                        "id" : theFilter.id,
+                        "name" : theFilter.name,
+                        "filter_word" : theFilter.filter_word,
+                        "recommend_show_num" : theFilter.recommend_show_num,
+                        "filter_show_num" : theFilter.filter_show_num
+                    }
+                }
+                i += 1
+                items.update(items)
+            return HttpResponse(json.dumps(items), content_type="application/json")
+        else:
+            return HttpResponse(returnStatusJson("404"), content_type="application/json")
+
+#API
+# 检测添加的过滤组名称是否可用
+def checkFilterName(request):
+    if request.is_ajax() and request.GET:
+        filter_name = request.GET.get("filter_name")
+        get_filter_name = Filter.objects.filter(name=filter_name)
+        if get_filter_name:
+            # 已经存在，不可添加
+            return HttpResponse(returnStatusJson("400"), content_type="application/json")
+        else:
+            # 可添加
+            return HttpResponse(returnStatusJson("200"), content_type="application/json")
+
+#API
+# 添加过滤组
+def addFilter(request):
+    if request.is_ajax() and request.GET:
+        category_name = request.GET.get("category_name")
+        filter_name = request.GET.get("filter_name")
+        keyWord_arr = request.GET.get("keyWord_arr")
+
+        theFilter = Filter()
+        theFilter.name = filter_name
+        theFilter.category_id = Category.objects.filter(name=category_name).values("id")[0]["id"]
+        theFilter.filter_word = keyWord_arr
+        theFilter.save()
+
+        return HttpResponse(returnStatusJson("200"), content_type="application/json")
+
+
+# class ShowFilterGroupListView(APIView):
+#     def get(self,request):
+#         category_id = request.GET.get("category_id")
+#         source_id = request.GET.get("source_id")
+#
+#         category = Category.objects.filter(id=category_id)
+#
+#         serializers = CategoryToFilterPlainSerializer(category,many=True,context={'source_id':source_id})
+#         return Response(serializers.data)
 
 
 

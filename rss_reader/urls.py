@@ -39,5 +39,11 @@ urlpatterns += [
     # 通过类别加载文章
     url(r'api/show_category_article',views.showCategoryToArticle),
     # 通过文章状态
-    url(r'api/update_article_status', views.updateArticleStatus)
+    url(r'api/update_article_status', views.updateArticleStatus),
+    # 通过类别显示过滤组的选项
+    url(r'api/show_filterGroup', views.showFilterGroup),
+    # 添加过滤组时，检测过滤组名称是否可用
+    url(r'api/check_filterName', views.checkFilterName),
+    # 添加过滤组
+    url(r'api/add_filter', views.addFilter)
 ]

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-cn">
   <head>
@@ -160,7 +159,7 @@
           <div class="rss-function">
 
             <label for="rss-filter">选择过滤组：</label>
-            <select class="form-control" id="rss-filter">
+            <select class="form-control" id="rss_filter">
               <option>前端开发</option>
               <option>后端开发</option>
               <option>JavaScript</option>
@@ -307,7 +306,7 @@
       </div>
     </div>
   </div>
-</div>  
+</div>
 
 <!-- 添加过滤组 -->
 <div class="modal fade" id="add_filter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -329,17 +328,27 @@
           <div class="form-group">
             <label for="rss_input_filter_keyWord" class="col-sm-2 control-label">核心词</label>
             <div class="col-sm-10">
-              <textarea class="form-control" rows="3" id="rss_input_filter_keyWord"></textarea>
-              <p class="rss-alert-text">提示：用逗号分开，输入关键词。如：javascript,node.js,angularjs,html5</p>
+              <!-- <textarea class="form-control" rows="3" id="rss_input_filter_keyWord"></textarea> -->
+              <div class="rss-filter-keyWord-contain">
+                <input type="text" id="rss_filter_input" class="rss-filter-keyWord-input" placeholder="在此输入核心词，用逗号结尾，不区分大小写">
+                <div id="rss_filter_keyWord_contain">
+<!-- 
+                  <div class="rss-filter-keyWord-item">
+                    <span class="rss-keyWord-label">JavaScript</span><span class="rss-filter-icon-remove glyphicon glyphicon-remove" aria-hidden="true"></span>
+                  </div>
+ -->                  
+                </div>
+              </div>
+              <p class="rss-alert-text">提示：用逗号分开，输入关键词。如：javascript,node.js,angularjs,html5,</p>
             </div>
           </div>
           <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
-              <button type="submit" class="btn btn-default">添加</button>
-              <p class="bg-success rss-add-source-alert rss-alert-success">
+              <button type="button" class="btn btn-default" id="filter_submit">添加</button>
+              <p id="rss_add_filter_alert" class="bg-success rss-add-source-alert rss-alert-success">
                 <span class="glyphicon glyphicon-ok"></span>
-                添加成功
-              </p>                
+                <span class="rss-alert-contents">添加成功</span>
+              </p>
             </div>
           </div>
         </form>      

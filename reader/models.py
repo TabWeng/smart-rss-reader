@@ -47,5 +47,7 @@ class Filter_sign(models.Model):
     # 两组外键
     filter = models.ForeignKey(Filter)
     article = models.ForeignKey(Article)
-    is_filter = models.NullBooleanField(default="null",null=True)
+    is_filter = models.IntegerField(default=0,null=True)
+    is_train = models.IntegerField(default=0,null=True)
+
 

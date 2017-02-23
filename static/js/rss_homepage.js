@@ -6,6 +6,8 @@ sidebarControl();
 controlPull();
 chooseCategory();
 currentContents();
+controlFilterSwitch();
+chooseFilterResult();
 
 //ajax-----------------
 loadSidebar_ajax();
@@ -15,6 +17,7 @@ showSource_ajax();
 showCategoryArticle_ajax();
 statusChange_ajax();
 addFilter_ajax();
+trainFilter_ajax();
 
 //init-----------------
 initLoading();
@@ -105,6 +108,56 @@ function initLoading(){
 
 }
 
+// 控制分类器开关
+function controlFilterSwitch(){
+	// 打开
+	$("#filter_open").click(function(){
+		$.this = $(this);
+		var close_btn = $("#filter_close");
+		if(!$.this.hasClass("btn-success")){
+			$.this.removeClass("btn-default").addClass("btn-success");
+			close_btn.removeClass("btn-success").addClass("btn-default");
+
+			$(".rss-filter-result>button").removeAttr("disabled").removeClass("rss-forbid-btn");
+
+			// 默认为推荐状态
+			$("#filter_recommend").click();
+		}
+	});
+	// 关闭
+	$("#filter_close").click(function(){
+		$.this = $(this);
+		var open_btn = $("#filter_open");
+		if(!$.this.hasClass("btn-success")){
+			$.this.removeClass("btn-default").addClass("btn-success");
+			open_btn.removeClass("btn-success").addClass("btn-default");
+
+			$(".rss-filter-result>button").attr("disabled","disabled").addClass("rss-forbid-btn");
+		}
+	});
+}
+
+// 选择推荐还是过滤
+function chooseFilterResult(){
+	// 推荐
+	$("#filter_recommend").click(function(){
+		$.this = $(this);
+		var filter = $("#filter_filter");
+		if(!$.this.hasClass("btn-info")){
+			$.this.removeClass("btn-default").addClass("btn-info");
+			filter.removeClass("btn-info").addClass("btn-default");
+		}
+	});
+	// 过滤
+	$("#filter_filter").click(function(){
+		$.this = $(this);
+		var recommend = $("#filter_recommend");
+		if(!$.this.hasClass("btn-info")){
+			$.this.removeClass("btn-default").addClass("btn-info");
+			recommend.removeClass("btn-info").addClass("btn-default");
+		}
+	});
+}
 
 //---------------- ajax -------------------
 // 加载侧边栏、分类列表
@@ -388,11 +441,12 @@ function showCategoryArticle_ajax(){
 		// 分页
 		paginationArticle(id_arr, page_length, "category");
 
-		//可以添加过滤组
+		// 可以添加过滤组(显示过滤组按钮)
 		$("#rss_add_filter").css("display","block");
-		// 显示过滤组的选项
+		// 显示过滤组的下拉选项
 		var category_id = CommonFunction.getId($.this.attr("id"));
-		showFilterGroup_ajax(category_id);
+		showFilterGroup_ajax(category_id,"all");
+
 
 	});
 }
@@ -531,6 +585,8 @@ function addFilter_ajax(){
 					"filter_name" : filter_name,
 					"keyWord_arr" : keyWord_arr
 				};
+				// 提交等待动画
+				$(".rss-add-filter-loading").css("display","block");
 				$.get("api/add_filter",param,function(data){
 					if(data.status == "200"){
 						CommonFunction.addAlert("rss_add_filter_alert","过滤组 '"+category_name+"' 添加成功","1");
@@ -541,6 +597,8 @@ function addFilter_ajax(){
 					}else{
 						CommonFunction.addAlert("rss_add_filter_alert","添加失败","0");
 					}
+					// 关闭动画
+					$(".rss-add-filter-loading").css("display","none");
 				},'json');
 				check = false;
 			}
@@ -548,13 +606,46 @@ function addFilter_ajax(){
 	});
 }
 
+// 获得可训练的文章
+function trainFilter_ajax(){
+	// 初次加载
+	$("#rss_filter_train").click(function(){
+		// 滚动条回到初始化状态
+		$(".rss-train-table")[0].scrollTop = 0;
+		var current_filter = $("#rss_filter").val();
+		$("#train_target").html(current_filter);
+		$("#filter_current_name").html(current_filter);
+		// 加载训练文章
+		loadTrainArticles(0,20);
+	});
+
+	// 加载更多
+	var load_time = 1;
+	var load_length = 20;
+	$("#train_more").click(function(){
+		var begin_num = load_length * load_time;
+		loadTrainArticles(begin_num, load_length);
+		load_time += 1;
+	});
+
+	// 选中核心词
+	$("body").on("click",".rss-train-key",function(){
+		$.this = $(this);
+		if($.this.hasClass("rss-key-check")){
+			$.this.removeClass("rss-key-check");
+		}else{
+			$.this.addClass("rss-key-check");
+		}
+	});
+
+}
 
 //-------------- ajax basic ----------------
 // 设置为已读状态
-	// 参数id 为要设置为已读的文章的id
-	// 参数targetStatus 是要成为的目标状态
-	// 参数changeElement 是要修改为目标状态的节点
-function setArticleStatus_ajax(id,targetStatus,changeElement){
+	// 参数 id 为要设置为已读的文章的id
+	// 参数 targetStatus 是要成为的目标状态
+	// 参数 changeElement 是要修改为目标状态的节点
+function setArticleStatus_ajax(id,targetStatus, changeElement){
 	var status = 0;
 	if(targetStatus == "toAlreadyRead"){
 		status = 1;
@@ -583,7 +674,6 @@ function setArticleStatus_ajax(id,targetStatus,changeElement){
 	});
 }
 
-
 // 显示过滤组的选项
 	// 参数 category_id 为要显示的类别的过滤组
 	// 参数 source_id 为只显示的二级菜单，若果是类别，则为 "all"
@@ -593,8 +683,99 @@ function showFilterGroup_ajax(category_id, source_id){
 		"source_id":source_id
 	};
 	$.get("api/show_filterGroup", param, function(data){
+		var select_filter = $("#rss_filter");
+		if(data.status == "200"){
+			var filters = data.filters;
+			var options = "";
+			for (var i in filters){
+				filter = filters[i];
+				options += '<option id="filter_'+filter.id+'" value="'+filter.name+'">'+filter.name+'</option>';
+			}
+			select_filter.empty();
+			select_filter.append(options);
+			$("#rss_filter_train").removeAttr("disabled");
 
+		}else{
+			select_filter.empty();
+			$("#rss_filter_train").attr("disabled","disabled");
+			console.log("show filter error.");
+		}
 	},'json');
+}
+
+// 加载训练文章
+	// 参数 filter_id 为要加载的文章的类别的id
+	// 参数 begin 分片开始的位置，是一个数字
+	// 参数 load_length 为要加载的文章长度
+function loadTrainArticles(begin, load_length){
+		// 获得filter的id
+		var filter_id = "";
+		var get_select = $("#rss_filter");
+		for (var i in get_select.children()){
+			var myOption = get_select.children().eq(i);
+			if(myOption.val() == get_select.val()){
+				filter_id = myOption.attr("id");
+				break;
+			}
+		}
+		filter_id = CommonFunction.getId(filter_id);
+
+		var end = begin + load_length;
+		var param = {
+			"filter_id":filter_id,
+			"begin":begin,
+			"end":end
+		};
+
+		$.get("api/get_filter_train_article",param,function(data){
+
+			if(data.status == "200"){
+				var contents = "";
+				var articles = data.articles;
+				for (var i in articles){
+					var article = articles[i];
+
+					// 获得关键词html元素
+					var keyWord_list = eval(article.key_word);
+					var keyWord_element = "";
+					for (var j = 0; j < keyWord_list.length; j++){
+						keyWord_element += '<span class="rss-train-key">'+keyWord_list[j]+'</span>';
+					}
+
+					contents +=
+						'<tr>'+
+							'<td class="rss-train-check">'+
+							  '<div class="checkbox checkbox-success">'+
+								'<input type="checkbox" id="checkbox_'+article.id+'"><label for="checkbox_'+article.id+'"></label>'+
+							  '</div>'+
+							'</td>'+
+							'<td>'+
+							  '<div class="rss-train-article-title"><p>'+article.title+'</p></div>'+
+							  '<div class="rss-train-article-summary">'+
+								'<p>'+ article.summary +'</p>'+
+							  '</div>'+
+							  '<div class="rss-train-article-keyWord">'+
+								'<span class="rss-train-style-1">关键词：</span>'+
+									keyWord_element+
+							  '</div>'+
+							'</td>'+
+						'</tr>';
+				}
+
+				// 是初次加载还是追加载
+				var train_contain = $("#filter_train_contain");
+				if(begin == 0){
+					train_contain.empty();
+					train_contain.append(contents);
+				}else{
+					train_contain.append(contents);
+				}
+
+			}else{
+				console.log("train data load error");
+			}
+		},'json');
+
 }
 
 //-------------- basic ---------------------

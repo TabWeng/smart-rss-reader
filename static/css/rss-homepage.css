@@ -210,7 +210,7 @@ body {
 #rss_filter {
 	width: 180px;
 	display: inline-block;
-	margin-right: 20px;
+	/*margin-right: 20px;*/
 }
 .rss-filter-number {
 	margin-left: 3px;
@@ -220,6 +220,19 @@ body {
 	top: -2px;
 	margin-left: 10px;
 }
+.rss-filter-open {
+	position: relative;
+	top: -2px;
+	margin-left: 10px;
+}
+
+.rss-forbid-btn {
+	background-color: #e8e8e8 !important;
+	color: #999 !important;
+	border: 1px solid #999 !important;
+	cursor: not-allowed !important;
+}
+
 #rss_add_filter {
 	float: right;
 	margin-right: 15px;
@@ -233,6 +246,78 @@ body {
 	font-size: 19px;
 	position: relative;
 	top: 2px;
+}
+/*训练分组*/
+.rss-filter-train {
+	position: relative;
+	margin-right: 15px;
+	margin-top: 8px;
+	float: right;
+	cursor: pointer;
+}
+.checkbox {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.rss-train-check {
+	width: 30px;
+}
+.rss-train-article-title{
+	border-bottom: 1px solid #e5e5e5;
+}
+.rss-train-article-title>p {
+	color: #428bca;
+	cursor: default;
+}
+.rss-train-article-summary{
+	border-bottom: 1px solid #e5e5e5;
+	padding: 5px 0;
+}
+.rss-train-article-summary>p {
+	font-size: 0.85em;
+	color: #555;
+	cursor: default;
+}
+.rss-train-article-keyWord {
+	padding-top: 5px;
+}
+.rss-train-key {
+	display: inline-block;
+	padding: 3px;
+	border: 1px solid #999;
+	color: #999;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 0.9em;
+	margin-right: 5px;
+}
+.rss-key-check {
+	color:#fff;
+	background-color: #FFA54F;
+	border: 1px solid #FFA54F;
+}
+.rss-train-style-1 {
+	color: #FF7F00;
+}
+.rss-train-table {
+	max-height: 400px;
+	overflow:auto;
+}
+.rss-train-alert {
+	padding-bottom: 10px;
+}
+.rss-train-alert > span {
+	color: #428bca;
+}
+
+.rss-add-filter-loading {
+	position: absolute;
+	top: calc(46% - 50px);
+	left: calc(55% - 50px);
+	display: none;
+}
+.rss-add-filter-loading > img {
+	width: 100px;
 }
 
 .rss-function-pull {

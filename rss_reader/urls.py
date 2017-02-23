@@ -45,5 +45,7 @@ urlpatterns += [
     # 添加过滤组时，检测过滤组名称是否可用
     url(r'api/check_filterName', views.checkFilterName),
     # 添加过滤组
-    url(r'api/add_filter', views.addFilter)
+    url(r'api/add_filter', views.addFilter),
+    # 获得可训练的文章
+    url(r'api/get_filter_train_article', views.getFilterTrainArticle)
 ]

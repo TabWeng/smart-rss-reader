@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from rss_contents.celery import app
 import feedparser
-from reader.models import Source,Article,Category
+from reader.models import Source,Article,Category,Filter,Filter_sign
 from time import sleep
 from django.db.models import Max,Sum
 # 分词用
@@ -68,8 +68,9 @@ def processLinks(link,id):
         allContents = textSummary + get_title #把标题也加进来
         # 获得前十个关键词
         tags = jieba.analyse.extract_tags(allContents, topK=10)
-        # 逗号分开，存入数据库
-        get_key_word = ','.join(tags)
+        # 以列表的形式，存入数据库
+        get_key_word = '["'+'","'.join(tags)+'"]'
+
         # 写入数据库
         article = Article()
         article.title = get_title
@@ -82,6 +83,16 @@ def processLinks(link,id):
         article.source_id = get_source_id
         article.key_word = get_key_word
         article.save()
+
+        # 更新到分类器中
+        category_id = Source.objects.filter(id=get_source_id).values("category_id")[0]["category_id"]
+        filter_list = Filter.objects.filter(category_id=category_id)
+        for theFilter in filter_list:
+            filter_sign = Filter_sign()
+            filter_sign.filter_id = theFilter.id
+            filter_sign.article_id = article.id
+            filter_sign.save()
+
         print "ok--"+str(id)
 
     # 更新source的amount总数,未读的总数

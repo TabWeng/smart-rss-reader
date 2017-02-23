@@ -17,6 +17,7 @@ var CommonFunction = {
     // info 为提示信息
     // id 为控制的节点id，status 为返回的状态，0 表示出错，1表示成功
     addAlert:function(id,info,status){
+
         if(status == "1"){
 			$("#"+id+">.rss-alert-contents").html(info);
 			var alert_icon = $("#"+id+">.glyphicon");

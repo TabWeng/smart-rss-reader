@@ -184,7 +184,7 @@ def showFilterGroup(request):
         # 若不为空
         if filters:
             for theFilter in filters:
-                items = {
+                item = {
                     i:{
                         "id" : theFilter.id,
                         "name" : theFilter.name,
@@ -194,8 +194,11 @@ def showFilterGroup(request):
                     }
                 }
                 i += 1
-                items.update(items)
-            return HttpResponse(json.dumps(items), content_type="application/json")
+                items.update(item)
+
+            content = {"filters":items}
+            # return HttpResponse(json.dumps(items), content_type="application/json")
+            return HttpResponse(returnStatusJson("200",content), content_type="application/json")
         else:
             return HttpResponse(returnStatusJson("404"), content_type="application/json")
 
@@ -222,12 +225,58 @@ def addFilter(request):
 
         theFilter = Filter()
         theFilter.name = filter_name
-        theFilter.category_id = Category.objects.filter(name=category_name).values("id")[0]["id"]
+        category_id = Category.objects.filter(name=category_name).values("id")[0]["id"]
+        theFilter.category_id = category_id
         theFilter.filter_word = keyWord_arr
         theFilter.save()
 
+        sources = Source.objects.filter(category_id=category_id)
+        search_condition = ""
+        for source in sources:
+            search_condition += "Q(source_id="+str(source.id)+")|"
+        search_condition = search_condition[:-1]
+
+        articles = Article.objects.filter(eval(search_condition)).filter(status=0)
+        for article in articles:
+            filter_sign = Filter_sign()
+            filter_sign.article_id = article.id
+            filter_sign.filter_id = theFilter.id
+            filter_sign.save()
+
         return HttpResponse(returnStatusJson("200"), content_type="application/json")
 
+#API
+# 获得可训练的文章
+def getFilterTrainArticle(request):
+    if request.is_ajax() and request.GET:
+        filter_id = request.GET.get("filter_id")
+        begin = request.GET.get("begin")
+        end = request.GET.get("end")
+
+        filter_signs = Filter_sign.objects.filter(filter_id=filter_id)
+        search_condition = ""
+        for i in filter_signs:
+            search_condition += "Q(id="+str(i.article_id)+")|"
+        search_condition = search_condition[:-1]
+
+        articles = Article.objects.filter(eval(search_condition),status=0)[begin:end].values("id","title","summary","key_word")
+        items = {}
+        num = 0
+        for article in articles:
+            item = {
+               num:{
+                   "id":article["id"],
+                   "title":article["title"],
+                   "summary":article["summary"],
+                   "key_word":article["key_word"]
+               }
+            }
+            num += 1
+            items.update(item)
+
+        contents = {"articles":items}
+
+        return HttpResponse(returnStatusJson("200",contents), content_type="application/json")
 
 # class ShowFilterGroupListView(APIView):
 #     def get(self,request):

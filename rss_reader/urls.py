@@ -37,7 +37,7 @@ urlpatterns += [
     # 加载文章
     url(r'api/show_article', views.SourceToArticleListView.as_view()),
     # 通过类别加载文章
-    url(r'api/show_category_article',views.showCategoryToArticle),
+    url(r'api/show_category_article', views.showCategoryToArticle),
     # 通过文章状态
     url(r'api/update_article_status', views.updateArticleStatus),
     # 通过类别显示过滤组的选项
@@ -47,5 +47,11 @@ urlpatterns += [
     # 添加过滤组
     url(r'api/add_filter', views.addFilter),
     # 获得可训练的文章
-    url(r'api/get_filter_train_article', views.getFilterTrainArticle)
+    url(r'api/get_filter_train_article', views.getFilterTrainArticle),
+    # 添加分类器的核心词
+    url(r'api/add_theFilter_keyWord', views.addFilterKeyWord),
+    # 添加训练样本数据
+    url(r'api/train_filter', views.trainFilter),
+    # 贝叶斯分类
+    url(r'api/update_filter_article', views.updateFilterArticle)
 ]

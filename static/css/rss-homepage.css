@@ -291,6 +291,16 @@ body {
 	font-size: 0.9em;
 	margin-right: 5px;
 }
+.rss-train-success {
+	background-color : #B4EEB4 !important;
+	color: #2b542c;
+	border:none !important;
+}
+.rss-train-error {
+	background-color : #FFC1C1 !important;
+	color: #FF3030;
+	border:none !important;
+}
 .rss-key-check {
 	color:#fff;
 	background-color: #FFA54F;
@@ -305,9 +315,40 @@ body {
 }
 .rss-train-alert {
 	padding-bottom: 10px;
+	border-bottom: 1px solid #ddd;
 }
 .rss-train-alert > span {
 	color: #428bca;
+}
+.rss-train-loading {
+	width: 30px;
+	position: relative;
+	top: -1px;
+}
+.rss-train-alert-modal {
+	background-color: #fff;
+	padding: 5px;
+	border: 1px solid #ddd;
+	height: 40px;
+	margin-bottom: 10px;
+}
+.rss-alert-loading-word {
+	vertical-align: 50%;
+	margin-left: 20px;
+	color: #666;
+}
+#train_alert_confirm {
+	/*display: none;*/
+}
+
+.rss-alert-word {
+	margin-left: 20px;
+}
+
+.rss-alert-word,.rss-alert-icon{
+	display: inline-block;
+	position: relative;
+	top: 3px;
 }
 
 .rss-add-filter-loading {

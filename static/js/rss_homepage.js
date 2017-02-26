@@ -18,6 +18,7 @@ showCategoryArticle_ajax();
 statusChange_ajax();
 addFilter_ajax();
 trainFilter_ajax();
+trainSubmit_ajax();
 
 //init-----------------
 initLoading();
@@ -104,7 +105,6 @@ function initLoading(){
 	$(".rss-loading-all>img").animate({
 		"opacity":1
 	},500);
-
 
 }
 
@@ -610,13 +610,17 @@ function addFilter_ajax(){
 function trainFilter_ajax(){
 	// 初次加载
 	$("#rss_filter_train").click(function(){
-		// 滚动条回到初始化状态
-		$(".rss-train-table")[0].scrollTop = 0;
+		$.this = $(this);
 		var current_filter = $("#rss_filter").val();
 		$("#train_target").html(current_filter);
 		$("#filter_current_name").html(current_filter);
 		// 加载训练文章
 		loadTrainArticles(0,20);
+		// 滚动条回到初始化状态
+		$("#rss_filter_train_model").on('hide.bs.modal', function (e) {
+  			$(".rss-train-table")[0].scrollTop = 0;
+		});
+
 	});
 
 	// 加载更多
@@ -638,6 +642,152 @@ function trainFilter_ajax(){
 		}
 	});
 
+}
+
+// 提交训练样本
+function trainSubmit_ajax(){
+	// 初步提交
+	$("#train_submit").unbind("click").click(function(){
+
+		// 获得选中的核心词
+		var train_key = $(".rss-train-key");
+		var train_key_arr = [];
+		for(var i=0; i<train_key.length; i++){
+			var key_item = train_key.eq(i);
+			if(key_item.hasClass("rss-key-check")){
+				// 加入到数组中，并且统一用小写
+				train_key_arr.push(key_item.html().toLowerCase());
+			}
+		}
+		// 获得filter的id
+		var filter_id = "";
+		var get_select = $("#rss_filter");
+		for (var i in get_select.children()){
+			var myOption = get_select.children().eq(i);
+			if(myOption.val() == get_select.val()){
+				filter_id = myOption.attr("id");
+				break;
+			}
+		}
+		filter_id = CommonFunction.getId(filter_id);
+
+		train_key_arr = JSON.stringify(train_key_arr);
+		// train_key_arr = JSON.stringify([]);
+		var param = {
+			"filter_id":filter_id,
+			"train_key_arr" : train_key_arr
+		};
+
+		$.get("api/add_theFilter_keyWord", param, function(data){
+		// $.get("", param, function(data){
+			if(data.status == "200"){
+				bayesDataDispose(data.key_word);
+				// 提示添加成功
+				$("#train_modal_alert").empty().append(
+					'<div class="rss-train-alert-modal rss-train-success">'+
+					  '<span class="rss-alert-icon glyphicon glyphicon-ok" aria-hidden="true"></span>'+
+					  '<span class="rss-alert-word">添加关键核心词成功</span>'+
+					'</div>'+
+					'<div id="train_alert_2" class="rss-train-alert-modal">'+
+					  '<img class="rss-train-loading" src="../static/images/loading_3.svg">'+
+					  '<span class="rss-alert-loading-word">正在训练学习样本...</span>'+
+					'</div>'
+				);
+			}else{
+				$("#train_modal_alert").empty().append(
+					'<div class="rss-train-alert-modal rss-train-error">'+
+					  '<span class="rss-alert-icon glyphicon glyphicon-remove" aria-hidden="true"></span>'+
+					  '<span class="rss-alert-word">添加关键核心词失败</span>'+
+					'</div>'
+				);
+				// 出现确定按钮
+				$("#train_alert_confirm").css("display","block");
+
+				console.log("add key word error!");
+			}
+		},'json');
+
+		// 处理获取可用于朴素贝叶斯算法的数据
+		function bayesDataDispose(keyWords){
+			var tr_ele = $("#filter_train_contain").children();
+			var data_all = [];
+			for(var i=0; i<tr_ele.length; i++){
+				var tr_ele_item = tr_ele.eq(i);
+				// cs 是 特征 characteristics
+				var tr_cs = [];
+				var keyWord_items = tr_ele_item.find(".rss-train-key");
+				for (var j=0; j<keyWord_items.length; j++){
+					var get_keyWord = keyWord_items.eq(j).html().toLowerCase();
+					if (jQuery.inArray(get_keyWord, keyWords) >= 0){
+						tr_cs.push(1);
+					}else{
+						tr_cs.push(0);
+					}
+				}
+				// 检测是否勾选，同时获得article_id
+				var input_check = tr_ele_item.find(".rss-train-checkbox").eq(0);
+				var is_recommend = "False";
+				if(input_check.is(":checked")){
+					is_recommend = "True";
+				}
+				var article_id = CommonFunction.getId(input_check.attr("id"));
+
+				var unit = {
+					"article_id" : article_id,
+					"cs" : tr_cs,
+					"is_recommend" : is_recommend
+				};
+				data_all.push(unit);
+			}
+
+			data_all = JSON.stringify(data_all);
+			var param = {
+				"bayes_data" : data_all,
+				"filter_id" : filter_id
+			};
+			// 传递给后台处理
+			$.post("api/train_filter",param, function(data){
+				if(data.status == "200"){
+					$("#train_alert_2").remove();
+					$("#train_modal_alert").append(
+						'<div class="rss-train-alert-modal rss-train-success">'+
+						  '<span class="rss-alert-icon glyphicon glyphicon-ok" aria-hidden="true"></span>'+
+						  '<span class="rss-alert-word">完成新样本训练</span>'+
+						'</div>'+
+						'<div id="train_alert_2" class="rss-train-alert-modal">'+
+						  '<img class="rss-train-loading" src="../static/images/loading_3.svg">'+
+						  '<span class="rss-alert-loading-word">正在对文章进行分类更新处理，请稍后...</span>'+
+						'</div>'
+					);
+
+					// 更新文章分类
+					trainArticle();
+				}else{
+					$("#train_alert_2").remove();
+					$("#train_modal_alert").append(
+						'<div class="rss-train-alert-modal rss-train-success">'+
+						  '<span class="rss-alert-icon glyphicon glyphicon-ok" aria-hidden="true"></span>'+
+						  '<span class="rss-alert-word">新样本学习失败</span>'+
+						'</div>'
+					);
+					// 出现确定按钮
+					$("#train_alert_confirm").css("display","block");
+					console.log("train data update error");
+				}
+			},'json');
+
+			// 更新文章分类
+			function trainArticle(){
+				var param = {
+					"filter_id" : filter_id
+				};
+				$.get("api/update_filter_article", param, function(data){
+
+				},'json');
+			}
+		}
+
+	});
 }
 
 //-------------- ajax basic ----------------
@@ -746,13 +896,13 @@ function loadTrainArticles(begin, load_length){
 						'<tr>'+
 							'<td class="rss-train-check">'+
 							  '<div class="checkbox checkbox-success">'+
-								'<input type="checkbox" id="checkbox_'+article.id+'"><label for="checkbox_'+article.id+'"></label>'+
+								'<input type="checkbox" class="rss-train-checkbox" id="checkbox_'+article.id+'"><label for="checkbox_'+article.id+'"></label>'+
 							  '</div>'+
 							'</td>'+
 							'<td>'+
 							  '<div class="rss-train-article-title"><p>'+article.title+'</p></div>'+
 							  '<div class="rss-train-article-summary">'+
-								'<p>'+ article.summary +'</p>'+
+								'<p>'+ article.summary + "..." +'</p>'+
 							  '</div>'+
 							  '<div class="rss-train-article-keyWord">'+
 								'<span class="rss-train-style-1">关键词：</span>'+
@@ -795,7 +945,7 @@ function initArticle(data) {
                   '<h4 class="rss-detail-category">'+data["name"]+'</h4>'+
                   '<p class="rss-detail-title"><a href="'+article["link"]+'" target="_blank"'+' id="link_'+article["id"]+'">'+ article["title"]+'</a></p>'+
                   '<p class="rss-detail-summary">'+
-                     article["summary"] +
+                     article["summary"] + "..." +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
 					'<input id="button_'+article["id"]+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
@@ -823,7 +973,7 @@ function appendToArticle(data){
                   '<h4 class="rss-detail-category">'+data["name"]+'</h4>'+
                   '<p class="rss-detail-title"><a href="'+article["link"]+'" target="_blank"'+' id="link_'+article["id"]+'">'+ article["title"]+'</a></p>'+
                   '<p class="rss-detail-summary">'+
-                     article["summary"] +
+                     article["summary"] + "..." +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
 					'<input id="button_'+article["id"]+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
@@ -849,7 +999,7 @@ function initCategoryToArticle(data) {
                   '<h4 class="rss-detail-category">'+article.source_name+'</h4>'+
                   '<p class="rss-detail-title"><a href="'+article.link+'" target="_blank"'+' id="link_'+article.id+'">'+ article.title+'</a></p>'+
                   '<p class="rss-detail-summary">'+
-                     article.summary +
+                     article.summary + "..." +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
 						'<input id="button_'+article.id+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+
@@ -875,7 +1025,7 @@ function appendCategoryToArticle(data) {
                   '<h4 class="rss-detail-category">'+article.source_name+'</h4>'+
                   '<p class="rss-detail-title"><a href="'+article.link+'" target="_blank">'+ article.title+'</a></p>'+
                   '<p class="rss-detail-summary">'+
-                     article.summary +
+                     article.summary + "..." +
                   '</p>'+
                   '<div class="rss-detail-menu">'+
 					'<input id="button_'+article.id+'" type="button" class="rss-article-button rss-status-button-neverRead" value="未读">'+

@@ -5,6 +5,7 @@ from rss_contents.celery import app
 import feedparser
 from reader.models import Source,Article,Category,Filter,Filter_sign
 from time import sleep
+from datetime import date,datetime
 from django.db.models import Max,Sum
 # 分词用
 import re
@@ -31,13 +32,15 @@ def processLinks(link,id):
     # 获取数据库最新的一条数据的link，如果是首次，则为空
     # 获得属于该source的所有文章
     getLast = Article.objects.filter(source_id=id)
-    last_link = ""
+    # last_link = ""
+    last_time = date.min
     # 如果Article这张表有内容，说明不是第一次，则getLast不为空，那么执行if里面的语句，否则不执行
     if getLast:
         # 获得在数据库中该source的最新的一篇文章，取id最大的则是，所以用Max
         last_id = Article.objects.filter(source_id=id).aggregate(last_id=Max("id"))
         # 获得id后，就可以获得该文章的link了
-        last_link = Article.objects.filter(id=last_id["last_id"]).values("link")[0]["link"]
+        # last_link = Article.objects.filter(id=last_id["last_id"]).values("link")[0]["link"]
+        last_time = Article.objects.filter(id=last_id["last_id"]).values("time")[0]["time"]
 
     # 解析链接
     # 解析link，看看是否有更新
@@ -48,7 +51,8 @@ def processLinks(link,id):
     # 定义一个栈，用来控制更新
     stack = []
     for entry in f["entries"]:
-        if entry["link"] == last_link:
+        # if entry["link"] == last_link:
+        if entry['published'].encode("utf-8") <= str(last_time):
             break
         else:
             stack.append(entry)
@@ -60,6 +64,7 @@ def processLinks(link,id):
 
         get_title = entry["title"].encode("utf-8")
         get_summary = entry['summary'].encode('utf-8')
+        get_time = entry['published'].encode("utf-8")
         get_source_id = id
 
         # 获得关键词
@@ -75,10 +80,11 @@ def processLinks(link,id):
         article = Article()
         article.title = get_title
         article.link = get_link
+        article.time = get_time
 
         if len(textSummary) > 280:
             textSummary = textSummary[:280]
-        article.summary = textSummary + "..."
+        article.summary = textSummary
 
         article.source_id = get_source_id
         article.key_word = get_key_word

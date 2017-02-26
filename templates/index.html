@@ -400,70 +400,6 @@
                 </td>
               </tr>
 
-              <tr>
-                <td class="rss-train-check">
-                  <div class="checkbox checkbox-success">
-                    <input type="checkbox" id="checkbox_1"><label for="checkbox_1"></label>
-                  </div>
-                </td>
-                <td>
-                  <div class="rss-train-article-title"><p>这里是标题</p></div>
-                  <div class="rss-train-article-summary">
-                    <p>
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                    </p>
-                  </div>
-                  <div class="rss-train-article-keyWord">
-                    <span class="rss-train-style-1">关键词：</span>
-                    <span class="rss-train-key">javascript</span><span class="rss-train-key rss-key-check">html</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="rss-train-check">
-                  <div class="checkbox checkbox-success">
-                    <input type="checkbox" id="checkbox_1"><label for="checkbox_1"></label>
-                  </div>
-                </td>
-                <td>
-                  <div class="rss-train-article-title"><p>这里是标题</p></div>
-                  <div class="rss-train-article-summary">
-                    <p>
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                    </p>
-                  </div>
-                  <div class="rss-train-article-keyWord">
-                    <span class="rss-train-style-1">关键词：</span>
-                    <span class="rss-train-key">javascript</span><span class="rss-train-key rss-key-check">html</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="rss-train-check">
-                  <div class="checkbox checkbox-success">
-                    <input type="checkbox" id="checkbox_1"><label for="checkbox_1"></label>
-                  </div>
-                </td>
-                <td>
-                  <div class="rss-train-article-title"><p>这里是标题</p></div>
-                  <div class="rss-train-article-summary">
-                    <p>
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                      这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，这里是摘要，
-                    </p>
-                  </div>
-                  <div class="rss-train-article-keyWord">
-                    <span class="rss-train-style-1">关键词：</span>
-                    <span class="rss-train-key">javascript</span><span class="rss-train-key rss-key-check">html</span>
-                  </div>
-                </td>
-              </tr>
-
             </tbody>
 		      </table>
         </div>
@@ -471,12 +407,45 @@
       </div>
       <div class="modal-footer">
         <button id="train_more" type="button" class="btn btn-primary rss-train-more">加载更多</button>
-        <button type="button" class="btn btn-success">完成</button>
+        <button id="train_submit" type="button" class="btn btn-success" data-toggle="modal" data-target="#alert_train_model">完成</button>
       </div>
     </div>
   </div>
 </div>
 
+
+<!-- 提示训练是否成功 -->
+<div class="modal fade" id="alert_train_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+<!--
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"></h4>
+      </div>
+-->
+      <div id="train_modal_alert" class="modal-body">
+
+        <div class="rss-train-alert-modal">
+          <img class="rss-train-loading" src="../static/images/loading_3.svg">
+          <span class="rss-alert-loading-word">正在添加关键核心词...</span>
+        </div>
+        <div class="rss-train-alert-modal rss-train-success">
+          <span class="rss-alert-icon glyphicon glyphicon-ok" aria-hidden="true"></span>
+          <span class="rss-alert-word">成功</span>
+        </div>
+        <div class="rss-train-alert-modal rss-train-error">
+          <span class="rss-alert-icon glyphicon glyphicon-remove" aria-hidden="true"></span>
+          <span class="rss-alert-word">失败</span>
+        </div>
+
+      </div>
+      <div id="train_alert_confirm" class="modal-footer">
+        <button type="button" class="btn btn-success" data-dismiss="modal">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- 等待加载文章 -->
 <div class="rss-loading-contents">

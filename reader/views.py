@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .serializers import CategorySerializer,SourceToArticleSerializer
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from django.db.models import Q
 from .common import *
@@ -253,7 +254,7 @@ def getFilterTrainArticle(request):
         begin = request.GET.get("begin")
         end = request.GET.get("end")
 
-        filter_signs = Filter_sign.objects.filter(filter_id=filter_id)
+        filter_signs = Filter_sign.objects.filter(filter_id=filter_id,is_train=0)
         search_condition = ""
         for i in filter_signs:
             search_condition += "Q(id="+str(i.article_id)+")|"
@@ -277,6 +278,155 @@ def getFilterTrainArticle(request):
         contents = {"articles":items}
 
         return HttpResponse(returnStatusJson("200",contents), content_type="application/json")
+
+
+# API
+# 添加分类器的核心词
+def addFilterKeyWord(request):
+    if request.is_ajax() and request.GET:
+        filter_id = request.GET.get("filter_id")
+        key_arr = request.GET.get("train_key_arr")
+
+        theFilter = Filter.objects.get(id=filter_id)
+        filter_key = Filter.objects.filter(id=filter_id).values("filter_word")[0]["filter_word"]
+
+        filter_key = eval(filter_key)
+        key_arr = eval(key_arr)
+
+        new_filter_key = filter_key + key_arr
+        # 去除重复
+        new_filter_key = list(set(new_filter_key))
+
+        # 保存到数据库
+        theFilter.filter_word = new_filter_key
+        theFilter.save()
+
+        contents = {"key_word":new_filter_key}
+
+        return HttpResponse(returnStatusJson("200",contents),content_type="application/json")
+
+# API
+# 处理训练样本
+@csrf_exempt
+def trainFilter(request):
+    if request.is_ajax() and request.POST:
+        bayes_data = request.POST.get("bayes_data")
+        filter_id = request.POST.get("filter_id")
+
+        # 更新训练数据
+        theFilter = Filter.objects.filter(id=filter_id)
+        prior_data = theFilter.values("prior_data")[0]["prior_data"]
+        recommend_key_num = theFilter.values("recommend_key_num")[0]["recommend_key_num"]
+        filter_key_num = theFilter.values("filter_key_num")[0]["filter_key_num"]
+
+        bayes_data = eval(bayes_data)
+        prior_data = eval(prior_data)
+        recommend_key_num = eval(recommend_key_num)
+        filter_key_num = eval(filter_key_num)
+
+        sample_size = len(bayes_data)
+        train_recommend_num = 0
+
+        for item in bayes_data:
+            if item["is_recommend"] == "True":
+                recommend_key_num = list(map(sum,zip(recommend_key_num,item["cs"])))
+                train_recommend_num += 1
+            else:
+                filter_key_num = list(map(sum,zip(filter_key_num,item["cs"])))
+
+        prior_data[0] += sample_size
+        prior_data[1] += train_recommend_num
+        prior_data[2] += sample_size - train_recommend_num
+
+        # 设置为已训练
+        for myItem in bayes_data:
+            article_id = myItem["article_id"]
+            # Filter_sign.objects.filter(article_id=article_id,filter_id=filter_id).update(is_train=1)
+
+        myFilter = Filter.objects.get(id=filter_id)
+        myFilter.prior_data = prior_data
+        myFilter.recommend_key_num = recommend_key_num
+        myFilter.filter_key_num = filter_key_num
+        # myFilter.save()
+
+        content = {
+            "prior_data": prior_data,
+            "recommend_key_num":recommend_key_num,
+            "filter_key_num":filter_key_num
+        }
+
+        return HttpResponse(returnStatusJson("200",content),content_type="application/json")
+
+# API
+# 更新未读文章在分类器中的分类
+def updateFilterArticle(request):
+    if request.is_ajax() and request.GET:
+        filter_id = request.GET.get("filter_id")
+
+        filter_signs = Filter_sign.objects.filter(filter_id=filter_id)
+        search_condition = ""
+        for i in filter_signs:
+            search_condition += "Q(id=" + str(i.article_id) + ")|"
+        search_condition = search_condition[:-1]
+
+        # 获得属于该分类器的文章
+        articles = Article.objects.filter(eval(search_condition), status=0).values("id","key_word","title")
+
+        theFilter = Filter.objects.filter(id=filter_id)
+        # 分类器的核心词库等
+        key_words = theFilter.values("filter_word")[0]["filter_word"]
+        prior_data = theFilter.values("prior_data")[0]["prior_data"]
+        recommend_key_num = theFilter.values("recommend_key_num")[0]["recommend_key_num"]
+        filter_key_num = theFilter.values("filter_key_num")[0]["filter_key_num"]
+
+        key_words = eval(key_words)
+        prior_data = eval(prior_data)
+        recommend_key_num = eval(recommend_key_num)
+        filter_key_num = eval(filter_key_num)
+
+        for article in articles:
+            temp_sign = []
+            article_keyWords = eval(article["key_word"])
+            for article_keyWord in article_keyWords:
+                if article_keyWord.lower() in key_words:
+                    temp_sign.append(1)
+                else:
+                    temp_sign.append(0)
+
+            # 全部训练样本数
+            sum = prior_data[0]
+            # 全部推荐数
+            recommend_sum = prior_data[1]
+            # 全部过滤数
+            filter_sum = prior_data[2]
+
+            # 计算推荐概率和过滤概率
+            i = 0
+            for temp in temp_sign:
+                if temp == 0:
+                    recommend_sum *= (sum - recommend_key_num[i])
+                    filter_sum *= (sum - filter_key_num[i])
+                else:
+                    recommend_sum *= recommend_key_num[i]
+                    filter_sum *= filter_key_num[i]
+                i += 1
+
+            # 调试
+            # print temp_sign
+            # print recommend_sum
+            # print filter_sum
+            # print article["title"]
+            # print "====================="
+
+            if recommend_sum >= filter_sum:
+                # 推荐
+                Filter_sign.objects.filter(article_id=article['id'], filter_id=filter_id).update(is_filter=1)
+            else:
+                # 过滤
+                Filter_sign.objects.filter(article_id=article['id'], filter_id=filter_id).update(is_filter=2)
+
+        return HttpResponse(returnStatusJson("200"), content_type="application/json")
+
 
 # class ShowFilterGroupListView(APIView):
 #     def get(self,request):

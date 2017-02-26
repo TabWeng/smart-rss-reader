@@ -23,7 +23,8 @@ class Article(models.Model):
     title = models.CharField(max_length=80)
     link = models.URLField()
     summary = models.CharField(max_length=1000)
-    time = models.DateTimeField(default=timezone.now)
+    # time = models.DateTimeField(default=timezone.now)
+    time = models.CharField(default="0",max_length=50)
     key_word = models.CharField(max_length=200, null=True)
     status = models.IntegerField(default=0)
     # 外键，连接RSS源
@@ -34,9 +35,9 @@ class Filter(models.Model):
     name = models.CharField(max_length=50)
     filter_word = models.CharField(max_length=510, null=True)
 
-    prior_data = models.CharField(max_length=50, null=True)
-    recommend_key_num = models.CharField(max_length=200, null=True)
-    filter_key_num = models.CharField(max_length=200,null=True)
+    prior_data = models.CharField(default="[2,1,1]", max_length=50, null=True)
+    recommend_key_num = models.CharField(default="[1,1,1,1,1,1,1,1,1,1]", max_length=200, null=True)
+    filter_key_num = models.CharField(default="[0,0,0,0,0,0,0,0,0,0]", max_length=200,null=True)
     recommend_show_num = models.IntegerField(default=0, null=True)
     filter_show_num = models.IntegerField(default=0, null=True)
     # 外键，连接类别

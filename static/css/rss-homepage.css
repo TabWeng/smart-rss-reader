@@ -338,7 +338,7 @@ body {
 	color: #666;
 }
 #train_alert_confirm {
-	/*display: none;*/
+	display: none;
 }
 
 .rss-alert-word {

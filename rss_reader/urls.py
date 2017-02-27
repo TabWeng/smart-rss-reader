@@ -53,5 +53,11 @@ urlpatterns += [
     # 添加训练样本数据
     url(r'api/train_filter', views.trainFilter),
     # 贝叶斯分类
-    url(r'api/update_filter_article', views.updateFilterArticle)
+    url(r'api/update_filter_article', views.updateFilterArticle),
+    # 显示分类和过滤的数量
+    url(r'^api/show_filter_num$', views.showFilterNum),
+    # 显示推荐的文章
+    url(r'^api/get_filter_recommend_article$', views.getFilterRecommendArticle),
+    # 显示过滤的文章
+    url(r'^api/get_filter_filter_article$', views.getFilterFilterArticle)
 ]

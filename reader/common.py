@@ -22,6 +22,11 @@ def returnStatusJson(status,contents={}):
             "status":"404",
             "message":"not a valid link resource"
         }
+    elif status == "204":
+        result = {
+            "status": "204",
+            "message": "no contents"
+        }
     else:
         pass
 

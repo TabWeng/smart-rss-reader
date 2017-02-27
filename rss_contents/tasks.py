@@ -94,9 +94,54 @@ def processLinks(link,id):
         category_id = Source.objects.filter(id=get_source_id).values("category_id")[0]["category_id"]
         filter_list = Filter.objects.filter(category_id=category_id)
         for theFilter in filter_list:
+            # 分类器的核心词库等
+            key_words = theFilter.filter_word
+            prior_data = theFilter.prior_data
+            recommend_key_num = theFilter.recommend_key_num
+            filter_key_num = theFilter.filter_key_num
+
+            key_words = eval(key_words)
+            prior_data = eval(prior_data)
+            recommend_key_num = eval(recommend_key_num)
+            filter_key_num = eval(filter_key_num)
+
+            temp_sign = []
+            for keyWord in eval(get_key_word):
+                if keyWord.lower() in key_words:
+                    temp_sign.append(1)
+                else:
+                    temp_sign.append(0)
+
+            # 全部训练样本数
+            sum = prior_data[0]
+            # 全部推荐数
+            recommend_sum = prior_data[1]
+            # 全部过滤数
+            filter_sum = prior_data[2]
+
+            # 计算推荐概率和过滤概率
+            i = 0
+            for temp in temp_sign:
+                if temp == 0:
+                    recommend_sum *= (sum - recommend_key_num[i])
+                    filter_sum *= (sum - filter_key_num[i])
+                else:
+                    recommend_sum *= recommend_key_num[i]
+                    filter_sum *= filter_key_num[i]
+                i += 1
+
+            is_filter = 0
+            if recommend_sum >= filter_sum:
+                # 推荐
+                is_filter = 1
+            else:
+                # 过滤
+                is_filter = 2
+
             filter_sign = Filter_sign()
             filter_sign.filter_id = theFilter.id
             filter_sign.article_id = article.id
+            filter_sign.is_filter = is_filter
             filter_sign.save()
 
         print "ok--"+str(id)

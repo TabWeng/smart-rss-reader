@@ -279,7 +279,6 @@ def getFilterTrainArticle(request):
 
         return HttpResponse(returnStatusJson("200",contents), content_type="application/json")
 
-
 # API
 # 添加分类器的核心词
 def addFilterKeyWord(request):
@@ -341,13 +340,13 @@ def trainFilter(request):
         # 设置为已训练
         for myItem in bayes_data:
             article_id = myItem["article_id"]
-            # Filter_sign.objects.filter(article_id=article_id,filter_id=filter_id).update(is_train=1)
+            Filter_sign.objects.filter(article_id=article_id,filter_id=filter_id).update(is_train=1)
 
         myFilter = Filter.objects.get(id=filter_id)
         myFilter.prior_data = prior_data
         myFilter.recommend_key_num = recommend_key_num
         myFilter.filter_key_num = filter_key_num
-        # myFilter.save()
+        myFilter.save()
 
         content = {
             "prior_data": prior_data,
@@ -370,7 +369,7 @@ def updateFilterArticle(request):
         search_condition = search_condition[:-1]
 
         # 获得属于该分类器的文章
-        articles = Article.objects.filter(eval(search_condition), status=0).values("id","key_word","title")
+        articles = Article.objects.filter(eval(search_condition), status=0).values("id","key_word")
 
         theFilter = Filter.objects.filter(id=filter_id)
         # 分类器的核心词库等
@@ -415,7 +414,7 @@ def updateFilterArticle(request):
             # print temp_sign
             # print recommend_sum
             # print filter_sum
-            # print article["title"]
+            ## print article["title"]
             # print "====================="
 
             if recommend_sum >= filter_sum:
@@ -427,6 +426,113 @@ def updateFilterArticle(request):
 
         return HttpResponse(returnStatusJson("200"), content_type="application/json")
 
+# API
+# 显示分类器的推荐和过滤数量
+def showFilterNum(request):
+    if request.is_ajax() and request.GET:
+        filter_id = request.GET.get("filter_id")
+
+        recommend_count = Filter_sign.objects.filter(filter_id=filter_id,is_filter=1,article__status=0).count()
+        filter_count = Filter_sign.objects.filter(filter_id=filter_id,is_filter=2,article__status=0).count()
+
+        content = {
+            "recommend_count" : recommend_count,
+            "filter_count" : filter_count
+        }
+
+        return HttpResponse(returnStatusJson("200",content), content_type="application/json")
+
+# API
+# 获得分类器推荐的文章
+def getFilterRecommendArticle(request):
+    if request.is_ajax() and request.GET:
+        filter_id = request.GET.get("filter_id")
+        begin = request.GET.get("begin")
+        end = request.GET.get("end")
+
+        filter_signs_all =  Filter_sign.objects.filter(filter_id=filter_id, is_filter=1)
+        filter_signs_count = filter_signs_all.count()
+
+        if int(begin) != 0 and int(end) >= filter_signs_count:
+            return HttpResponse(returnStatusJson("204"), content_type="application/json")
+
+        filter_signs = filter_signs_all[begin:end]
+
+        search_condition = ""
+        for i in filter_signs:
+            search_condition += "Q(id=" + str(i.article_id) + ")|"
+        search_condition = search_condition[:-1]
+
+        articles = Article.objects.filter(eval(search_condition), status=0).order_by("-id")
+        items = {}
+        i = 0
+        for article in articles:
+            source_name = Source.objects.filter(id=article.source_id).values("name")[0]["name"]
+            item = {
+                i: {
+                    "id": article.id,
+                    "title": article.title,
+                    "link": article.link,
+                    "summary": article.summary,
+                    "status": article.status,
+                    "source_id": article.source_id,
+                    "source_name": source_name
+                }
+            }
+            i += 1
+            items.update(item)
+
+            content = {
+                "items":items
+            }
+
+        return HttpResponse(returnStatusJson("200", content), content_type="application/json")
+
+# API
+# 获得分类器过滤的文章
+def getFilterFilterArticle(request):
+    if request.is_ajax() and request.GET:
+        filter_id = request.GET.get("filter_id")
+        begin = request.GET.get("begin")
+        end = request.GET.get("end")
+
+        filter_signs_all =  Filter_sign.objects.filter(filter_id=filter_id, is_filter=2)
+        filter_signs_count = filter_signs_all.count()
+
+        if int(begin) != 0 and int(end) >= filter_signs_count:
+            return HttpResponse(returnStatusJson("204"), content_type="application/json")
+
+        filter_signs = filter_signs_all[begin:end]
+
+        search_condition = ""
+        for i in filter_signs:
+            search_condition += "Q(id=" + str(i.article_id) + ")|"
+        search_condition = search_condition[:-1]
+
+        articles = Article.objects.filter(eval(search_condition), status=0).order_by("-id")
+        items = {}
+        i = 0
+        for article in articles:
+            source_name = Source.objects.filter(id=article.source_id).values("name")[0]["name"]
+            item = {
+                i: {
+                    "id": article.id,
+                    "title": article.title,
+                    "link": article.link,
+                    "summary": article.summary,
+                    "status": article.status,
+                    "source_id": article.source_id,
+                    "source_name": source_name
+                }
+            }
+            i += 1
+            items.update(item)
+
+            content = {
+                "items": items
+            }
+
+        return HttpResponse(returnStatusJson("200", content), content_type="application/json")
 
 # class ShowFilterGroupListView(APIView):
 #     def get(self,request):

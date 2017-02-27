@@ -47,6 +47,23 @@ var CommonFunction = {
     	setTimeout(function(){
 			$("#"+id).removeClass("rss-alert-hint");
 		},700);
+	},
+
+	// 获得当前分类器的id
+	getFilterId:function(){
+		// 获得filter的id
+		var filter_id = "";
+		var get_select = $("#rss_filter");
+		for (var i in get_select.children()){
+			var myOption = get_select.children().eq(i);
+			if(myOption.val() == get_select.val()){
+				filter_id = myOption.attr("id");
+				break;
+			}
+		}
+		filter_id = CommonFunction.getId(filter_id);
+		return filter_id
 	}
+
 };
 

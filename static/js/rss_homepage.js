@@ -7,7 +7,6 @@ controlPull();
 chooseCategory();
 currentContents();
 controlFilterSwitch();
-chooseFilterResult();
 
 //ajax-----------------
 loadSidebar_ajax();
@@ -19,6 +18,7 @@ statusChange_ajax();
 addFilter_ajax();
 trainFilter_ajax();
 trainSubmit_ajax();
+chooseFilterResult_ajax();
 
 //init-----------------
 initLoading();
@@ -106,6 +106,8 @@ function initLoading(){
 		"opacity":1
 	},500);
 
+	// 推荐和过滤默认为不可点击状态
+	$(".rss-filter-result>button").attr("disabled","disabled").addClass("rss-forbid-btn");
 }
 
 // 控制分类器开关
@@ -122,6 +124,18 @@ function controlFilterSwitch(){
 
 			// 默认为推荐状态
 			$("#filter_recommend").click();
+
+			// 显示推荐和过滤数量
+			var filter_id = CommonFunction.getFilterId();
+			var param = {
+				"filter_id" : filter_id
+			};
+			$.get("api/show_filter_num", param, function(data){
+				if(data.status == "200"){
+					$("#recommend_num").html(data.recommend_count);
+					$("#filter_num").html(data.filter_count);
+				}
+			},'json');
 		}
 	});
 	// 关闭
@@ -133,31 +147,22 @@ function controlFilterSwitch(){
 			open_btn.removeClass("btn-success").addClass("btn-default");
 
 			$(".rss-filter-result>button").attr("disabled","disabled").addClass("rss-forbid-btn");
+
+			// 模拟点击一下分类
+			var current_category = $("#show_current_category").html();
+			var category =  $(".rss-category-name");
+			for(var i = 0; i < category.length; i++){
+				var the_category = category.eq(i);
+				if (the_category.html() == current_category){
+					the_category.click();
+					break;
+				}
+			}
+
 		}
 	});
 }
 
-// 选择推荐还是过滤
-function chooseFilterResult(){
-	// 推荐
-	$("#filter_recommend").click(function(){
-		$.this = $(this);
-		var filter = $("#filter_filter");
-		if(!$.this.hasClass("btn-info")){
-			$.this.removeClass("btn-default").addClass("btn-info");
-			filter.removeClass("btn-info").addClass("btn-default");
-		}
-	});
-	// 过滤
-	$("#filter_filter").click(function(){
-		$.this = $(this);
-		var recommend = $("#filter_recommend");
-		if(!$.this.hasClass("btn-info")){
-			$.this.removeClass("btn-default").addClass("btn-info");
-			recommend.removeClass("btn-info").addClass("btn-default");
-		}
-	});
-}
 
 //---------------- ajax -------------------
 // 加载侧边栏、分类列表
@@ -365,7 +370,7 @@ function addSource_ajax(){
 // 显示源内容
 function showSource_ajax(){
 	// 点击源
-	$("body").on("click",".rss-source-name",function(){
+	$("body").on("click", ".rss-source-name", function(){
 		$.this = $(this);
 		var id = CommonFunction.getId($.this.attr("id"));
 		var id_arr = [];
@@ -754,7 +759,7 @@ function trainSubmit_ajax(){
 						  '<span class="rss-alert-icon glyphicon glyphicon-ok" aria-hidden="true"></span>'+
 						  '<span class="rss-alert-word">完成新样本训练</span>'+
 						'</div>'+
-						'<div id="train_alert_2" class="rss-train-alert-modal">'+
+						'<div id="train_alert_3" class="rss-train-alert-modal">'+
 						  '<img class="rss-train-loading" src="../static/images/loading_3.svg">'+
 						  '<span class="rss-alert-loading-word">正在对文章进行分类更新处理，请稍后...</span>'+
 						'</div>'
@@ -782,11 +787,96 @@ function trainSubmit_ajax(){
 					"filter_id" : filter_id
 				};
 				$.get("api/update_filter_article", param, function(data){
+					if(data.status == "200"){
+						$("#train_alert_3").remove();
+						$("#train_modal_alert").append(
+							'<div class="rss-train-alert-modal rss-train-success">'+
+							  '<span class="rss-alert-icon glyphicon glyphicon-ok" aria-hidden="true"></span>'+
+							  '<span class="rss-alert-word">文章分类全部更新完成！</span>'+
+							'</div>');
 
+						// 出现确定按钮
+						$("#train_alert_confirm").css("display","block");
+
+						// 关闭两个模态框
+						$("#train_confirm").unbind("click").click(function(){
+							$('#rss_filter_train_model').modal('hide');
+						});
+
+					}else{
+						$("#train_alert_3").remove();
+						$("#train_modal_alert").append(
+							'<div class="rss-train-alert-modal rss-train-error">'+
+							  '<span class="rss-alert-icon glyphicon glyphicon-remove" aria-hidden="true"></span>'+
+							  '<span class="rss-alert-word">文章分类更新失败</span>'+
+							'</div>');
+						// 出现确定按钮
+						$("#train_alert_confirm").css("display","block");
+					}
 				},'json');
 			}
 		}
 
+	});
+}
+
+// 选择推荐还是过滤
+function chooseFilterResult_ajax(){
+	// 推荐
+	$("#filter_recommend").click(function(){
+		$.this = $(this);
+		var filter = $("#filter_filter");
+		if(!$.this.hasClass("btn-info")){
+			$.this.removeClass("btn-default").addClass("btn-info");
+			filter.removeClass("btn-info").addClass("btn-default");
+
+			// 显示推荐的文章
+			var filter_id = CommonFunction.getFilterId();
+			var begin = 0;
+			var end = 20;
+			var param = {
+				"filter_id":filter_id,
+				"begin":begin,
+				"end":end
+			};
+			$(".rss-loading-contents").css("display","block"); //loading
+			$(".rss-contents-detail")[0].scrollTop = 0;
+			$.get("api/get_filter_recommend_article", param, function(data){
+				initCategoryToArticle(data.items);
+				$(".rss-loading-contents").css("display","none"); //end loading
+				// 推荐分页
+				paginationFilterArticle(filter_id, 20, "recommend");
+			},'json');
+		}
+	});
+
+	// 过滤
+	$("#filter_filter").click(function(){
+		$.this = $(this);
+		var recommend = $("#filter_recommend");
+		if(!$.this.hasClass("btn-info")){
+			$.this.removeClass("btn-default").addClass("btn-info");
+			recommend.removeClass("btn-info").addClass("btn-default");
+
+			// 显示过滤的文章
+			var filter_id = CommonFunction.getFilterId();
+			var begin = 0;
+			var end = 20;
+			var param = {
+				"filter_id":filter_id,
+				"begin":begin,
+				"end":end
+			};
+			$(".rss-loading-contents").css("display","block"); //loading
+			$(".rss-contents-detail")[0].scrollTop = 0;
+			$.get("api/get_filter_filter_article", param, function(data){
+				initCategoryToArticle(data.items);
+				$(".rss-contents-detail").unbind("scroll");
+				$(".rss-loading-contents").css("display","none"); //end loading
+				// 过滤分页
+				paginationFilterArticle(filter_id, 20, "filter");
+			},'json');
+		}
 	});
 }
 
@@ -1070,6 +1160,55 @@ function paginationArticle(id_arr, page_length, way){
 			}else if(way == "source"){
 				$.get("api/show_article",param,function(data){
 					appendToArticle(data[0]);
+					$(".rss-loading-add").css("display","none"); //cancel loading
+				},"json");
+			}else{}
+
+			times++;
+		}
+	});
+}
+
+// 分页功能
+	// way 是分页的选择，一共有 recommend 和 filter 两种
+function paginationFilterArticle(filter_id, page_length, way){
+	var contents_detail_div = $(".rss-contents-detail");
+	var contain_scrollHeight = 0;
+	var contain_scrollTop = 0;
+	var contain_div_height = contents_detail_div.height();
+
+	var times = 1;
+	contents_detail_div.unbind("scroll").scroll(function(){
+		$.this = $(this);
+		contain_scrollHeight = $.this[0].scrollHeight;
+		contain_scrollTop = $.this[0].scrollTop;
+
+		var param = {
+			"begin": page_length * times,
+			"end": page_length * (times + 1),
+			"filter_id": filter_id
+		};
+
+		// 到达底部
+		if(contain_div_height + contain_scrollTop >= contain_scrollHeight){
+			$(".rss-loading-add").css("display","block"); //loading
+
+			if(way == "recommend"){
+				$.get("api/get_filter_recommend_article", param, function(data) {
+					if (data.status == "200"){
+						appendCategoryToArticle(data.items);
+					}else if(data.status == "204"){
+						console.log("recommend article load accomplish");
+					}
+					$(".rss-loading-add").css("display","none"); //cancel loading
+				},"json");
+			}else if(way == "filter"){
+				$.get("api/get_filter_filter_article",param,function(data){
+					if (data.status == "200"){
+						appendCategoryToArticle(data.items);
+					}else if(data.status == "204"){
+						console.log("filter article load accomplish");
+					}
 					$(".rss-loading-add").css("display","none"); //cancel loading
 				},"json");
 			}else{}

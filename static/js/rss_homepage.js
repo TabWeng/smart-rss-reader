@@ -654,6 +654,9 @@ function trainSubmit_ajax(){
 	// 初步提交
 	$("#train_submit").unbind("click").click(function(){
 
+		// 先清空
+		$("#train_modal_alert").empty();
+
 		// 获得选中的核心词
 		var train_key = $(".rss-train-key");
 		var train_key_arr = [];

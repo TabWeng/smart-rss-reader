@@ -369,7 +369,7 @@ def updateFilterArticle(request):
         search_condition = search_condition[:-1]
 
         # 获得属于该分类器的文章
-        articles = Article.objects.filter(eval(search_condition), status=0).values("id","key_word")
+        articles = Article.objects.filter(eval(search_condition), status=0).values("id","key_word","title")
 
         theFilter = Filter.objects.filter(id=filter_id)
         # 分类器的核心词库等
@@ -411,11 +411,12 @@ def updateFilterArticle(request):
                 i += 1
 
             # 调试
-            # print temp_sign
-            # print recommend_sum
-            # print filter_sum
-            ## print article["title"]
-            # print "====================="
+            print temp_sign
+            print "推荐数：",recommend_sum
+            print "过滤数：",filter_sum
+            print article["title"]
+            print ("推荐" if recommend_sum >= filter_sum else "过滤")
+            print "====================="
 
             if recommend_sum >= filter_sum:
                 # 推荐
@@ -533,16 +534,6 @@ def getFilterFilterArticle(request):
             }
 
         return HttpResponse(returnStatusJson("200", content), content_type="application/json")
-
-# class ShowFilterGroupListView(APIView):
-#     def get(self,request):
-#         category_id = request.GET.get("category_id")
-#         source_id = request.GET.get("source_id")
-#
-#         category = Category.objects.filter(id=category_id)
-#
-#         serializers = CategoryToFilterPlainSerializer(category,many=True,context={'source_id':source_id})
-#         return Response(serializers.data)
 
 
 

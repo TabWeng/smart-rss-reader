@@ -411,12 +411,12 @@ def updateFilterArticle(request):
                 i += 1
 
             # 调试
-            print temp_sign
-            print "推荐数：",recommend_sum
-            print "过滤数：",filter_sum
-            print article["title"]
-            print ("推荐" if recommend_sum >= filter_sum else "过滤")
-            print "====================="
+            # print temp_sign
+            # print "推荐数：",recommend_sum
+            # print "过滤数：",filter_sum
+            # print article["title"]
+            # print ("推荐" if recommend_sum >= filter_sum else "过滤")
+            # print "====================="
 
             if recommend_sum >= filter_sum:
                 # 推荐
